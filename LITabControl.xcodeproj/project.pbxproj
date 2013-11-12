@@ -1,0 +1,480 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4DC2D65418322F8300FA57A8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2D65318322F8300FA57A8 /* Cocoa.framework */; };
+		4DC2D65E18322F8300FA57A8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D65C18322F8300FA57A8 /* InfoPlist.strings */; };
+		4DC2D66018322F8300FA57A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D65F18322F8300FA57A8 /* main.m */; };
+		4DC2D66418322F8300FA57A8 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D66218322F8300FA57A8 /* Credits.rtf */; };
+		4DC2D66718322F8300FA57A8 /* LIAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D66618322F8300FA57A8 /* LIAppDelegate.m */; };
+		4DC2D66A18322F8300FA57A8 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D66818322F8300FA57A8 /* MainMenu.xib */; };
+		4DC2D66C18322F8300FA57A8 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D66B18322F8300FA57A8 /* Images.xcassets */; };
+		4DC2D67318322F8300FA57A8 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2D67218322F8300FA57A8 /* XCTest.framework */; };
+		4DC2D67418322F8300FA57A8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2D65318322F8300FA57A8 /* Cocoa.framework */; };
+		4DC2D67C18322F8300FA57A8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D67A18322F8300FA57A8 /* InfoPlist.strings */; };
+		4DC2D67E18322F8300FA57A8 /* LITabControlTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D67D18322F8300FA57A8 /* LITabControlTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4DC2D67518322F8300FA57A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DC2D64818322F8300FA57A8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4DC2D64F18322F8300FA57A8;
+			remoteInfo = LITabControl;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4DC2D65018322F8300FA57A8 /* LITabControl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LITabControl.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DC2D65318322F8300FA57A8 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		4DC2D65618322F8300FA57A8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		4DC2D65718322F8300FA57A8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		4DC2D65818322F8300FA57A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4DC2D65B18322F8300FA57A8 /* LITabControl-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LITabControl-Info.plist"; sourceTree = "<group>"; };
+		4DC2D65D18322F8300FA57A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4DC2D65F18322F8300FA57A8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4DC2D66118322F8300FA57A8 /* LITabControl-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LITabControl-Prefix.pch"; sourceTree = "<group>"; };
+		4DC2D66318322F8300FA57A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		4DC2D66518322F8300FA57A8 /* LIAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LIAppDelegate.h; sourceTree = "<group>"; };
+		4DC2D66618322F8300FA57A8 /* LIAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LIAppDelegate.m; sourceTree = "<group>"; };
+		4DC2D66918322F8300FA57A8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		4DC2D66B18322F8300FA57A8 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		4DC2D67118322F8300FA57A8 /* LITabControlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LITabControlTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DC2D67218322F8300FA57A8 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		4DC2D67918322F8300FA57A8 /* LITabControlTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LITabControlTests-Info.plist"; sourceTree = "<group>"; };
+		4DC2D67B18322F8300FA57A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4DC2D67D18322F8300FA57A8 /* LITabControlTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LITabControlTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4DC2D64D18322F8300FA57A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2D65418322F8300FA57A8 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC2D66E18322F8300FA57A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2D67418322F8300FA57A8 /* Cocoa.framework in Frameworks */,
+				4DC2D67318322F8300FA57A8 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4DC2D64718322F8300FA57A8 = {
+			isa = PBXGroup;
+			children = (
+				4DC2D65918322F8300FA57A8 /* LITabControl */,
+				4DC2D67718322F8300FA57A8 /* LITabControlTests */,
+				4DC2D65218322F8300FA57A8 /* Frameworks */,
+				4DC2D65118322F8300FA57A8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4DC2D65118322F8300FA57A8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D65018322F8300FA57A8 /* LITabControl.app */,
+				4DC2D67118322F8300FA57A8 /* LITabControlTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4DC2D65218322F8300FA57A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D65318322F8300FA57A8 /* Cocoa.framework */,
+				4DC2D67218322F8300FA57A8 /* XCTest.framework */,
+				4DC2D65518322F8300FA57A8 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4DC2D65518322F8300FA57A8 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D65618322F8300FA57A8 /* AppKit.framework */,
+				4DC2D65718322F8300FA57A8 /* CoreData.framework */,
+				4DC2D65818322F8300FA57A8 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		4DC2D65918322F8300FA57A8 /* LITabControl */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D66518322F8300FA57A8 /* LIAppDelegate.h */,
+				4DC2D66618322F8300FA57A8 /* LIAppDelegate.m */,
+				4DC2D66818322F8300FA57A8 /* MainMenu.xib */,
+				4DC2D66B18322F8300FA57A8 /* Images.xcassets */,
+				4DC2D65A18322F8300FA57A8 /* Supporting Files */,
+			);
+			path = LITabControl;
+			sourceTree = "<group>";
+		};
+		4DC2D65A18322F8300FA57A8 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D65B18322F8300FA57A8 /* LITabControl-Info.plist */,
+				4DC2D65C18322F8300FA57A8 /* InfoPlist.strings */,
+				4DC2D65F18322F8300FA57A8 /* main.m */,
+				4DC2D66118322F8300FA57A8 /* LITabControl-Prefix.pch */,
+				4DC2D66218322F8300FA57A8 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4DC2D67718322F8300FA57A8 /* LITabControlTests */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D67D18322F8300FA57A8 /* LITabControlTests.m */,
+				4DC2D67818322F8300FA57A8 /* Supporting Files */,
+			);
+			path = LITabControlTests;
+			sourceTree = "<group>";
+		};
+		4DC2D67818322F8300FA57A8 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D67918322F8300FA57A8 /* LITabControlTests-Info.plist */,
+				4DC2D67A18322F8300FA57A8 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4DC2D64F18322F8300FA57A8 /* LITabControl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DC2D68118322F8300FA57A8 /* Build configuration list for PBXNativeTarget "LITabControl" */;
+			buildPhases = (
+				4DC2D64C18322F8300FA57A8 /* Sources */,
+				4DC2D64D18322F8300FA57A8 /* Frameworks */,
+				4DC2D64E18322F8300FA57A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LITabControl;
+			productName = LITabControl;
+			productReference = 4DC2D65018322F8300FA57A8 /* LITabControl.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4DC2D67018322F8300FA57A8 /* LITabControlTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DC2D68418322F8300FA57A8 /* Build configuration list for PBXNativeTarget "LITabControlTests" */;
+			buildPhases = (
+				4DC2D66D18322F8300FA57A8 /* Sources */,
+				4DC2D66E18322F8300FA57A8 /* Frameworks */,
+				4DC2D66F18322F8300FA57A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4DC2D67618322F8300FA57A8 /* PBXTargetDependency */,
+			);
+			name = LITabControlTests;
+			productName = LITabControlTests;
+			productReference = 4DC2D67118322F8300FA57A8 /* LITabControlTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4DC2D64818322F8300FA57A8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = LI;
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Mark Onyschuk";
+				TargetAttributes = {
+					4DC2D67018322F8300FA57A8 = {
+						TestTargetID = 4DC2D64F18322F8300FA57A8;
+					};
+				};
+			};
+			buildConfigurationList = 4DC2D64B18322F8300FA57A8 /* Build configuration list for PBXProject "LITabControl" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4DC2D64718322F8300FA57A8;
+			productRefGroup = 4DC2D65118322F8300FA57A8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4DC2D64F18322F8300FA57A8 /* LITabControl */,
+				4DC2D67018322F8300FA57A8 /* LITabControlTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4DC2D64E18322F8300FA57A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2D65E18322F8300FA57A8 /* InfoPlist.strings in Resources */,
+				4DC2D66C18322F8300FA57A8 /* Images.xcassets in Resources */,
+				4DC2D66418322F8300FA57A8 /* Credits.rtf in Resources */,
+				4DC2D66A18322F8300FA57A8 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC2D66F18322F8300FA57A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2D67C18322F8300FA57A8 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4DC2D64C18322F8300FA57A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2D66018322F8300FA57A8 /* main.m in Sources */,
+				4DC2D66718322F8300FA57A8 /* LIAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC2D66D18322F8300FA57A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC2D67E18322F8300FA57A8 /* LITabControlTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4DC2D67618322F8300FA57A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4DC2D64F18322F8300FA57A8 /* LITabControl */;
+			targetProxy = 4DC2D67518322F8300FA57A8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4DC2D65C18322F8300FA57A8 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2D65D18322F8300FA57A8 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		4DC2D66218322F8300FA57A8 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2D66318322F8300FA57A8 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		4DC2D66818322F8300FA57A8 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2D66918322F8300FA57A8 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		4DC2D67A18322F8300FA57A8 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4DC2D67B18322F8300FA57A8 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4DC2D67F18322F8300FA57A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4DC2D68018322F8300FA57A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4DC2D68218322F8300FA57A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LITabControl/LITabControl-Prefix.pch";
+				INFOPLIST_FILE = "LITabControl/LITabControl-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		4DC2D68318322F8300FA57A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LITabControl/LITabControl-Prefix.pch";
+				INFOPLIST_FILE = "LITabControl/LITabControl-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		4DC2D68518322F8300FA57A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/LITabControl.app/Contents/MacOS/LITabControl";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LITabControl/LITabControl-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "LITabControlTests/LITabControlTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		4DC2D68618322F8300FA57A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/LITabControl.app/Contents/MacOS/LITabControl";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LITabControl/LITabControl-Prefix.pch";
+				INFOPLIST_FILE = "LITabControlTests/LITabControlTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4DC2D64B18322F8300FA57A8 /* Build configuration list for PBXProject "LITabControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DC2D67F18322F8300FA57A8 /* Debug */,
+				4DC2D68018322F8300FA57A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DC2D68118322F8300FA57A8 /* Build configuration list for PBXNativeTarget "LITabControl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DC2D68218322F8300FA57A8 /* Debug */,
+				4DC2D68318322F8300FA57A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4DC2D68418322F8300FA57A8 /* Build configuration list for PBXNativeTarget "LITabControlTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DC2D68518322F8300FA57A8 /* Debug */,
+				4DC2D68618322F8300FA57A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4DC2D64818322F8300FA57A8 /* Project object */;
+}
