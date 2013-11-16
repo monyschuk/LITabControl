@@ -18,6 +18,12 @@
 		4DC2D67418322F8300FA57A8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2D65318322F8300FA57A8 /* Cocoa.framework */; };
 		4DC2D67C18322F8300FA57A8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D67A18322F8300FA57A8 /* InfoPlist.strings */; };
 		4DC2D67E18322F8300FA57A8 /* LITabControlTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D67D18322F8300FA57A8 /* LITabControlTests.m */; };
+		4DC2D68A18322FE700FA57A8 /* LITabControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D68918322FE700FA57A8 /* LITabControl.m */; };
+		4DC2D68C1832309E00FA57A8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2D68B1832309E00FA57A8 /* QuartzCore.framework */; };
+		4DC2D69B1833A0E600FA57A8 /* NSImage+LITabControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D69A1833A0E600FA57A8 /* NSImage+LITabControl.m */; };
+		4DD302B31833BEA10084A037 /* LITabLeftTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4DD302B01833BEA10084A037 /* LITabLeftTemplate.pdf */; };
+		4DD302B41833BEA10084A037 /* LITabPlusTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4DD302B11833BEA10084A037 /* LITabPlusTemplate.pdf */; };
+		4DD302B51833BEA10084A037 /* LITabRightTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4DD302B21833BEA10084A037 /* LITabRightTemplate.pdf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +56,14 @@
 		4DC2D67918322F8300FA57A8 /* LITabControlTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LITabControlTests-Info.plist"; sourceTree = "<group>"; };
 		4DC2D67B18322F8300FA57A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4DC2D67D18322F8300FA57A8 /* LITabControlTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LITabControlTests.m; sourceTree = "<group>"; };
+		4DC2D68818322FE700FA57A8 /* LITabControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LITabControl.h; sourceTree = "<group>"; };
+		4DC2D68918322FE700FA57A8 /* LITabControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LITabControl.m; sourceTree = "<group>"; };
+		4DC2D68B1832309E00FA57A8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		4DC2D6991833A0E600FA57A8 /* NSImage+LITabControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+LITabControl.h"; sourceTree = "<group>"; };
+		4DC2D69A1833A0E600FA57A8 /* NSImage+LITabControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+LITabControl.m"; sourceTree = "<group>"; };
+		4DD302B01833BEA10084A037 /* LITabLeftTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = LITabLeftTemplate.pdf; sourceTree = "<group>"; };
+		4DD302B11833BEA10084A037 /* LITabPlusTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = LITabPlusTemplate.pdf; sourceTree = "<group>"; };
+		4DD302B21833BEA10084A037 /* LITabRightTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = LITabRightTemplate.pdf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +72,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4DC2D65418322F8300FA57A8 /* Cocoa.framework in Frameworks */,
+				4DC2D68C1832309E00FA57A8 /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				4DC2D65318322F8300FA57A8 /* Cocoa.framework */,
+				4DC2D68B1832309E00FA57A8 /* QuartzCore.framework */,
 				4DC2D67218322F8300FA57A8 /* XCTest.framework */,
 				4DC2D65518322F8300FA57A8 /* Other Frameworks */,
 			);
@@ -115,6 +131,7 @@
 		4DC2D65918322F8300FA57A8 /* LITabControl */ = {
 			isa = PBXGroup;
 			children = (
+				4DC2D68718322FA800FA57A8 /* Classes */,
 				4DC2D66518322F8300FA57A8 /* LIAppDelegate.h */,
 				4DC2D66618322F8300FA57A8 /* LIAppDelegate.m */,
 				4DC2D66818322F8300FA57A8 /* MainMenu.xib */,
@@ -152,6 +169,20 @@
 				4DC2D67A18322F8300FA57A8 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4DC2D68718322FA800FA57A8 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				4DC2D68818322FE700FA57A8 /* LITabControl.h */,
+				4DC2D68918322FE700FA57A8 /* LITabControl.m */,
+				4DC2D6991833A0E600FA57A8 /* NSImage+LITabControl.h */,
+				4DC2D69A1833A0E600FA57A8 /* NSImage+LITabControl.m */,
+				4DD302B01833BEA10084A037 /* LITabLeftTemplate.pdf */,
+				4DD302B11833BEA10084A037 /* LITabPlusTemplate.pdf */,
+				4DD302B21833BEA10084A037 /* LITabRightTemplate.pdf */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -231,9 +262,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DD302B31833BEA10084A037 /* LITabLeftTemplate.pdf in Resources */,
 				4DC2D65E18322F8300FA57A8 /* InfoPlist.strings in Resources */,
+				4DD302B51833BEA10084A037 /* LITabRightTemplate.pdf in Resources */,
 				4DC2D66C18322F8300FA57A8 /* Images.xcassets in Resources */,
 				4DC2D66418322F8300FA57A8 /* Credits.rtf in Resources */,
+				4DD302B41833BEA10084A037 /* LITabPlusTemplate.pdf in Resources */,
 				4DC2D66A18322F8300FA57A8 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -254,6 +288,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4DC2D66018322F8300FA57A8 /* main.m in Sources */,
+				4DC2D69B1833A0E600FA57A8 /* NSImage+LITabControl.m in Sources */,
+				4DC2D68A18322FE700FA57A8 /* LITabControl.m in Sources */,
 				4DC2D66718322F8300FA57A8 /* LIAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -465,6 +501,7 @@
 				4DC2D68318322F8300FA57A8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4DC2D68418322F8300FA57A8 /* Build configuration list for PBXNativeTarget "LITabControlTests" */ = {
 			isa = XCConfigurationList;
@@ -473,6 +510,7 @@
 				4DC2D68618322F8300FA57A8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

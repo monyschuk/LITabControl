@@ -7,9 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "LITabControl.h"
 
-@interface LIAppDelegate : NSObject <NSApplicationDelegate>
+@interface LIAppDelegate : NSObject <NSApplicationDelegate, LITabDataSource>
 
 @property (assign) IBOutlet NSWindow *window;
+@property (assign) IBOutlet LITabControl *tabControl;
 
 @end
