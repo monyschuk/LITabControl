@@ -16,15 +16,15 @@
 
 - (id)tabControl:(LITabControl *)tabControl itemAtIndex:(NSUInteger)index;
 
+- (NSMenu *)tabControl:(LITabControl *)tabControl menuForItem:(id)item;
+
 - (NSString *)tabControl:(LITabControl *)tabControl titleForItem:(id)item;
 - (void)tabControl:(LITabControl *)tabControl setTitle:(NSString *)title forItem:(id)item;
-
-- (NSMenu *)tabControl:(LITabControl *)tabControl menuForItem:(id)item;
-- (BOOL)tabControl:(LITabControl *)tabControl shouldShowMenuForItem:(id)item;
 
 - (void)tabControlDidReorderItems:(LITabControl *)tabControl;
 - (BOOL)tabControl:(LITabControl *)tabControl shouldReorderItem:(id)item;
 
+@optional
 - (void)tabControlDidChangeSelection:(NSNotification *)notification;
 
 @end
@@ -60,20 +60,3 @@ extern NSString *LITabControlDidChangeSelectionNotification;
 @property(nonatomic, weak) id addTarget;
 
 @end
-
-typedef enum {
-    LIBorderMaskTop     = (1<<0),
-    LIBorderMaskLeft    = (1<<1),
-    LIBorderMaskRight   = (1<<2),
-    LIBorderMaskBottom  = (1<<3)
-} LIBorderMask;
-
-@interface LITabButtonCell : NSButtonCell
-
-@property(nonatomic) LIBorderMask borderMask;
-@property(nonatomic, copy) NSColor *borderColor;
-@property(nonatomic, copy) NSColor *backgroundColor;
-
-@end
-
-extern BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount);

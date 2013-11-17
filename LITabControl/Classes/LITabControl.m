@@ -7,16 +7,12 @@
 //
 
 #import "LITabControl.h"
-#import "NSImage+LITabControl.h"
+#import "LITabCell.h"
 
 #import <QuartzCore/QuartzCore.h>
 
-#define DF_MIN_TAB_WIDTH    (72.f * 2)
-#define DF_MAX_TAB_WIDTH    (72.f * 2.5)
-
-#define DF_BORDER_COLOR     [NSColor lightGrayColor]
-#define DF_HIGHLIGHT_COLOR  [NSColor colorWithCalibratedRed:0.119 green:0.399 blue:0.964 alpha:1.000]
-#define DF_BACKGROUND_COLOR [NSColor colorWithCalibratedRed:0.854 green:0.858 blue:0.873 alpha:1.000]
+#define DF_MIN_TAB_WIDTH    (72.f * 2.75)
+#define DF_MAX_TAB_WIDTH    (72.f * 3.25)
 
 @interface LITabControl()
 
@@ -30,7 +26,7 @@
 @implementation LITabControl
 
 + (Class)cellClass {
-    return [LITabButtonCell class];
+    return [LITabCell class];
 }
 
 #pragma mark -
@@ -56,11 +52,7 @@
         _maxTabWidth = DF_MAX_TAB_WIDTH;
 
         [self.cell setTitle:@""];
-        [self.cell setBorderColor:DF_BORDER_COLOR];
-        [self.cell setBackgroundColor:DF_BACKGROUND_COLOR];
-
         [self.cell setBorderMask:LIBorderMaskBottom];
-        
         [self.cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:13]];
         
         _scrollView         = [self viewWithClass:[NSScrollView class]];
@@ -81,7 +73,7 @@
         NSDictionary *views = NSDictionaryOfVariableBindings(_scrollView, _addButton, _scrollLeftButton, _scrollRightButton);
         
         [self setSubviews:@[_scrollView, _addButton, _scrollLeftButton, _scrollRightButton]];
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_addButton][_scrollView][_scrollLeftButton][_scrollRightButton]|" options:0 metrics:nil views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_addButton][_scrollView]-(-1)-[_scrollLeftButton][_scrollRightButton]|" options:0 metrics:nil views:views]];
         
         for (NSView *view in views.allValues) {
             [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|" options:0 metrics:nil views:@{@"view": view}]];
@@ -107,20 +99,29 @@
         [_addButton.cell setBorderMask:[_addButton.cell borderMask] | LIBorderMaskRight];
         [_scrollLeftButton.cell setBorderMask:[_scrollLeftButton.cell borderMask] | LIBorderMaskLeft];
 
+        [self startObservingScrollView];
         [self updateButtons];
     }
+}
+
+- (void)dealloc {
+    [self stopObservingScrollView];
 }
 
 - (void)updateButtons {
     [_addButton setEnabled:(self.addAction != NULL)];
 
-    NSView *documentView = self.scrollView.documentView;
     NSClipView *contentView = self.scrollView.contentView;
+
+    BOOL isDocumentClipped = (contentView != nil) && (self.items.count * self.minTabWidth > NSWidth(contentView.bounds));
     
-    BOOL isDocumentClipped = documentView == nil || NSWidth(documentView.frame) > NSWidth(contentView.bounds);
-    
-    [_scrollLeftButton setHidden:isDocumentClipped];
-    [_scrollRightButton setHidden:isDocumentClipped];
+    if (isDocumentClipped) {
+        [_scrollLeftButton setHidden:NO];
+        [_scrollRightButton setHidden:NO];
+    } else {
+        [_scrollLeftButton setHidden:YES];
+        [_scrollRightButton setHidden:YES];
+    }
 }
 
 - (NSButton *)buttonWithImageNamed:(NSString *)name target:(id)target action:(SEL)action {
@@ -144,6 +145,29 @@
     [view setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     return view;
+}
+
+#pragma mark -
+#pragma mark ScrollView Observation
+
+static char LIScrollViewFrameObservationContext;
+static char LISCrollViewDocumentFrameObservationContext;
+
+- (void)startObservingScrollView {
+    [self.scrollView addObserver:self forKeyPath:@"frame" options:0 context:&LIScrollViewFrameObservationContext];
+    [self.scrollView addObserver:self forKeyPath:@"documentView.frame" options:0 context:&LISCrollViewDocumentFrameObservationContext];
+}
+- (void)stopObservingScrollView {
+    [self.scrollView removeObserver:self forKeyPath:@"frame" context:&LIScrollViewFrameObservationContext];
+    [self.scrollView removeObserver:self forKeyPath:@"documentView.frame" context:&LISCrollViewDocumentFrameObservationContext];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (context == &LIScrollViewFrameObservationContext || context == &LISCrollViewDocumentFrameObservationContext) {
+        [self updateButtons];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark -
@@ -179,7 +203,23 @@
 }
 
 - (IBAction)selectTab:(id)sender {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
+    NSButton *selectedButton = sender;
+    
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        [context setAllowsImplicitAnimation:YES];
+        [selectedButton scrollRectToVisible:[selectedButton bounds]];
+    } completionHandler:^{
+    }];
+    
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if (button != selectedButton) {
+            [button setState:0];
+        }
+    }
+    
+    [[NSApplication sharedApplication] sendAction:self.action to:self.target from:self];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlDidChangeSelectionNotification object:self];
 }
 
 #pragma mark -
@@ -187,7 +227,14 @@
 
 - (void)setDataSource:(id<LITabDataSource>)dataSource {
     if (_dataSource != dataSource) {
+        
+        if (_dataSource && [_dataSource respondsToSelector:@selector(tabControlDidChangeSelection:)])
+            [[NSNotificationCenter defaultCenter] removeObserver:_dataSource name:LITabControlDidChangeSelectionNotification object:self];
+        
         _dataSource = dataSource;
+        
+        if (_dataSource && [_dataSource respondsToSelector:@selector(tabControlDidChangeSelection:)])
+            [[NSNotificationCenter defaultCenter] addObserver:_dataSource selector:@selector(tabControlDidChangeSelection:) name:LITabControlDidChangeSelectionNotification object:self];
         
         [self reloadData];
     }
@@ -205,6 +252,15 @@
     for (id item in newItems) {
         NSButton *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item] view:tabView];
         
+        NSMenu *menu = [self.dataSource tabControl:self menuForItem:item];
+        if (menu != nil) {
+            [[button cell] setMenu:menu];
+            [button addTrackingArea:[[NSTrackingArea alloc] initWithRect:_scrollView.bounds
+                                                                 options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInActiveApp|NSTrackingInVisibleRect
+                                                                   owner:self
+                                                                userInfo:@{@"item" : item}]];
+        }
+
         [tabView addSubview:button];
         
         [tabView addConstraint:
@@ -241,15 +297,14 @@
 }
 
 - (NSButton *)tabWithTitle:(NSString *)title view:(NSView *)view {
-    LITabButtonCell *tabCell = [[LITabButtonCell alloc] initTextCell:title];
+    LITabCell *tabCell = [[LITabCell alloc] initTextCell:title];
     
     tabCell.target = self;
     tabCell.action = @selector(selectTab:);
     
-    tabCell.borderMask = LIBorderMaskRight|LIBorderMaskBottom;
-    
-    tabCell.imagePosition = NSNoImage;
-    tabCell.font = [NSFont fontWithName:@"HelveticaNeue-Medium" size:13];
+    tabCell.imagePosition   = NSNoImage;
+    tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
+    tabCell.font            = [NSFont fontWithName:@"HelveticaNeue-Medium" size:13];
     
     NSButton *tab = [self viewWithClass:[NSButton class]];
 
@@ -274,6 +329,39 @@
 }
 
 #pragma mark -
+#pragma mark ScrollView Tracking
+
+- (NSButton *)trackedButtonWithEvent:(NSEvent *)theEvent {
+    id item = theEvent.trackingArea.userInfo[@"item"];
+
+    if (item) {
+        NSUInteger itemIndex = [self.items indexOfObject:item];
+
+        if (itemIndex != NSNotFound) {
+            NSArray *buttons = [self.scrollView.documentView subviews];
+        
+            if (itemIndex < buttons.count) {
+                return buttons[itemIndex];
+            }
+        }
+    }
+    
+    return nil;
+}
+
+- (void)mouseEntered:(NSEvent *)theEvent {
+    LITabCell *cell = [[self trackedButtonWithEvent:theEvent] cell];
+    
+    cell.showsMenu = YES;
+}
+- (void)mouseExited:(NSEvent *)theEvent {
+    LITabCell *cell = [[self trackedButtonWithEvent:theEvent] cell];
+    
+    cell.showsMenu = NO;
+}
+
+
+#pragma mark -
 #pragma mark Layout
 
 - (NSSize)intrinsicContentSize {
@@ -290,87 +378,6 @@
     return YES;
 }
 
-
 @end
-
-@implementation LITabButtonCell
-
-- (id)initTextCell:(NSString *)aString {
-    if ((self = [super initTextCell:aString])) {
-        [self setBordered:NO];
-        
-        [self setBorderColor:DF_BORDER_COLOR];
-        [self setBackgroundColor:DF_BACKGROUND_COLOR];
-        
-        [self setHighlightsBy:NSNoCellMask];
-    }
-    return self;
-}
-
-- (id)copyWithZone:(NSZone *)zone {
-    LITabButtonCell *copy = [super copyWithZone:zone];
-    
-    copy->_borderMask = _borderMask;
-    copy->_borderColor = [_borderColor copyWithZone:zone];
-    copy->_backgroundColor = [_backgroundColor copyWithZone:zone];
-    
-    return copy;
-}
-
-- (void)setBackgroundColor:(NSColor *)backgroundColor {
-    if (_backgroundColor != backgroundColor) {
-        _backgroundColor = backgroundColor.copy;
-    
-        [self.controlView setNeedsDisplay:YES];
-    }
-}
-
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
-    [self.backgroundColor set];
-    NSRectFill(cellFrame);
-    
-    if (self.image && self.imagePosition != NSNoImage) {
-        [self drawImage:[self.image imageWithTint:self.isHighlighted ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]] withFrame:cellFrame inView:controlView];
-    }
-    
-    if (self.title.length && self.imagePosition != NSImageOnly) {
-        NSMutableAttributedString *attributedTitle = self.attributedTitle.mutableCopy;
-        [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.isHighlighted ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
-        [self drawTitle:attributedTitle withFrame:NSOffsetRect(cellFrame, 0, -2) inView:controlView];
-    }
-
-    NSRect *borderRects;
-    NSInteger borderRectCount;
-    if (LIRectArrayWithBorderMask(cellFrame, self.borderMask, &borderRects, &borderRectCount)) {
-        [self.borderColor set];
-        NSRectFillList(borderRects, borderRectCount);
-    }
-}
-
-@end
-
-BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount) {
-    static NSRect outputArray[4];
-    NSInteger outputCount = 0;
-    
-    NSRect remainderRect;
-    if (borderMask & LIBorderMaskTop) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMinYEdge);
-    }
-    if (borderMask & LIBorderMaskLeft) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMinXEdge);
-    }
-    if (borderMask & LIBorderMaskRight) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMaxXEdge);
-    }
-    if (borderMask & LIBorderMaskBottom) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMaxYEdge);
-    }
-    
-    if (rectCount) *rectCount = outputCount;
-    if (rectArray) *rectArray = &outputArray[0];
-    
-    return (outputCount > 0);
-}
 
 NSString *LITabControlDidChangeSelectionNotification = @"LITabControlDidChangeSelectionNotification";
