@@ -7,6 +7,8 @@
 //
 
 #import "LITabCell.h"
+#import "LITabControl.h"
+
 #import "NSImage+LITabControl.h"
 
 #define DF_BORDER_COLOR     [NSColor lightGrayColor]
@@ -64,6 +66,14 @@
     }
 }
 
+- (void)setBorderMask:(LIBorderMask)borderMask {
+    if (_borderMask != borderMask) {
+        _borderMask = borderMask;
+        
+        [self.controlView setNeedsDisplay:YES];
+    }
+}
+
 + (NSImage *)popupImage {
     static NSImage *ret = nil;
     if (ret == nil) {
@@ -85,8 +95,19 @@
     NSPoint location = [controlView convertPoint:[theEvent locationInWindow] fromView:nil];
     
     if (self.menu.itemArray.count > 0 &&  NSPointInRect(location, popupRect)) {
+        id view = controlView;
+        LITabControl *enclosingControl = nil;
+        while ((view = [view superview])) {
+            if ([view isKindOfClass:[LITabControl class]]) {
+                enclosingControl = view;
+                break;
+            }
+        }
+        
+        [enclosingControl setSelectedItem:self.representedObject];
         [self.menu popUpMenuPositioningItem:self.menu.itemArray[0] atLocation:NSMakePoint(NSMidX(popupRect), NSMaxY(popupRect)) inView:controlView];
         return YES;
+        
     } else {
         return [super trackMouse:theEvent inRect:cellFrame ofView:controlView untilMouseUp:flag];
     }

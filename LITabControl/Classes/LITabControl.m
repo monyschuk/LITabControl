@@ -120,6 +120,10 @@
     if (isDocumentClipped) {
         [_scrollLeftButton  setHidden:NO];
         [_scrollRightButton setHidden:NO];
+        
+        [_scrollLeftButton setEnabled:([self firstTabLeftOutsideVisibleRect] != nil)];
+        [_scrollRightButton setEnabled:([self firstTabRightOutsideVisibleRect] != nil)];
+        
     } else {
         [_scrollLeftButton  setHidden:YES];
         [_scrollRightButton setHidden:YES];
@@ -152,24 +156,32 @@
 #pragma mark -
 #pragma mark ScrollView Observation
 
-static char LIScrollViewFrameObservationContext;
-static char LISCrollViewDocumentFrameObservationContext;
+static char LIScrollViewObservationContext;
 
 - (void)startObservingScrollView {
-    [self.scrollView addObserver:self forKeyPath:@"frame" options:0 context:&LIScrollViewFrameObservationContext];
-    [self.scrollView addObserver:self forKeyPath:@"documentView.frame" options:0 context:&LISCrollViewDocumentFrameObservationContext];
+    [self.scrollView addObserver:self forKeyPath:@"frame" options:0 context:&LIScrollViewObservationContext];
+    [self.scrollView addObserver:self forKeyPath:@"documentView.frame" options:0 context:&LIScrollViewObservationContext];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollViewDidScroll:) name:NSViewBoundsDidChangeNotification object:self.scrollView.contentView];
 }
 - (void)stopObservingScrollView {
-    [self.scrollView removeObserver:self forKeyPath:@"frame" context:&LIScrollViewFrameObservationContext];
-    [self.scrollView removeObserver:self forKeyPath:@"documentView.frame" context:&LISCrollViewDocumentFrameObservationContext];
+    [self.scrollView removeObserver:self forKeyPath:@"frame" context:&LIScrollViewObservationContext];
+    [self.scrollView removeObserver:self forKeyPath:@"documentView.frame" context:&LIScrollViewObservationContext];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:self.scrollView.contentView];
+
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (context == &LIScrollViewFrameObservationContext || context == &LISCrollViewDocumentFrameObservationContext) {
+    if (context == &LIScrollViewObservationContext) {
         [self updateButtons];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
+}
+
+- (void)scrollViewDidScroll:(NSNotification *)notification {
+    [self updateButtons];
 }
 
 #pragma mark -
@@ -199,9 +211,49 @@ static char LISCrollViewDocumentFrameObservationContext;
 }
 
 - (void)goLeft:(id)sender {
+    NSButton *tab = [self firstTabLeftOutsideVisibleRect];
+    
+    if (tab != nil) {
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setAllowsImplicitAnimation:YES];
+            [tab scrollRectToVisible:[tab bounds]];
+        } completionHandler:nil];
+    }
+}
+
+- (NSButton *)firstTabLeftOutsideVisibleRect {
+    NSView *tabView = self.scrollView.documentView;
+    NSRect  visibleRect = tabView.visibleRect;
+    
+    for (NSButton *button in [[tabView subviews] reverseObjectEnumerator]) {
+        if (NSMinX(button.frame) < NSMinX(visibleRect)) {
+            return button;
+        }
+    }
+    return nil;
 }
 
 - (void)goRight:(id)sender {
+    NSButton *tab = [self firstTabRightOutsideVisibleRect];
+
+    if (tab != nil) {
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [context setAllowsImplicitAnimation:YES];
+            [tab scrollRectToVisible:[tab bounds]];
+        } completionHandler:nil];
+    }
+}
+
+- (NSButton *)firstTabRightOutsideVisibleRect {
+    NSView *tabView = self.scrollView.documentView;
+    NSRect  visibleRect = tabView.visibleRect;
+    
+    for (NSButton *button in [tabView subviews]) {
+        if (NSMaxX(button.frame) > NSMaxX(visibleRect)) {
+            return button;
+        }
+    }
+    return nil;
 }
 
 - (void)selectTab:(id)sender {
@@ -259,22 +311,28 @@ static char LISCrollViewDocumentFrameObservationContext;
                                                                         toItem:tabView attribute:NSLayoutAttributeBottom
                                                                     multiplier:1 constant:0]];                                  // CONSTANT
     
-    LITabCell *cellCopy = [tab.cell copy];
-    
-    cellCopy.borderMask = cellCopy.borderMask | LIBorderMaskLeft | LIBorderMaskRight;
-    
-    [draggingTab setCell:cellCopy];
+    draggingTab.cell = [tab.cell copy];
 
     [tabView addSubview:draggingTab];
     [tabView addConstraints:draggingConstraints];
     
     [tab setHidden:YES];
     
-    BOOL reordered = NO;
+    BOOL dragged = NO, reordered = NO;
     
-    while (event.type != NSLeftMouseUp) {
+    while (1) {
         event = [self.window nextEventMatchingMask:NSLeftMouseDraggedMask|NSLeftMouseUpMask];
         
+        if (event.type == NSLeftMouseUp) break;
+        
+        // ensure the dragged tab shows borders on both of its sides when dragging
+        if (dragged == NO && event.type == NSLeftMouseDragged) {
+            dragged = YES;
+            
+            LITabCell *cell = draggingTab.cell;
+            cell.borderMask = cell.borderMask | LIBorderMaskLeft | LIBorderMaskRight;
+        }
+
         // move the dragged tab
         NSPoint nextPoint = [tabView convertPoint:event.locationInWindow fromView:nil];
         
@@ -282,7 +340,6 @@ static char LISCrollViewDocumentFrameObservationContext;
         
         [draggingConstraints[0] setConstant:nextX];
         [tabView layoutSubtreeIfNeeded];
-        [draggingTab scrollRectToVisible:draggingTab.bounds];
         
         // test for reordering...
         if (NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != tabView.subviews.firstObject) {
