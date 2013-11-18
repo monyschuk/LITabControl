@@ -22,6 +22,17 @@ Using LITabControl
 
 To learn how to use LITabControl, run the LITabControl project in Xcode. LIAppDelegate implements the LITabControlDataSource protocol to display a series of tabs across the top of its associated window.To Add the control to your own project, copy or link assets and classes located in the Classes folder to your project. 
 
+To respond to tab clicks - set LITabControl's target and action properties, or listen for LITabControlDidChangeSelectionNotification notifications. 
+
+To respond to requests to add new tabs, set LITabControl's addTarget and addAction properties. Your method used to add a tab should behave like this:
+
+```
+- (IBAction)addTab:(id)sender {
+  // .. add some model object representing your tab
+  [sender reloadData];
+}
+```
+
 LICENSE & NOTES
 ---------------
 
