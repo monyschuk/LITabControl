@@ -19,7 +19,9 @@
 @property(nonatomic, strong) NSArray        *items;
 
 @property(nonatomic, strong) NSScrollView   *scrollView;
-@property(nonatomic, strong) NSButton       *addButton, *scrollLeftButton, *scrollRightButton;
+@property(nonatomic, strong) NSButton       *addButton, *scrollLeftButton, *scrollRightButton, *draggingTab;
+
+- (NSButton *)existingTabWithItem:(id)item;
 
 @end
 
@@ -226,16 +228,107 @@ static char LISCrollViewDocumentFrameObservationContext;
 #pragma mark Reordering
 
 - (void)reorderTab:(NSButton *)tab withEvent:(NSEvent *)event {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
+    // note existing tabs which will be reordered over
+    // the course of our drag; while the dragging tab maintains
+    // its position over the course of the dragging operation
     
-    NSButton *draggingTab = [self tabWithTitle:tab.title];
-    [draggingTab setCell:[tab.cell copy]];
+    NSView          *tabView        = self.scrollView.documentView;
+    NSMutableArray  *orderedTabs    = [[NSMutableArray alloc] initWithArray:tabView.subviews];
+    
+    // create a dragging tab used to represent our drag,
+    // and constraint its position and its size; the first
+    // constraint sets position - we'll be varying this one
+    // during our drag...
+    
+    CGFloat   tabX                  = NSMinX(tab.frame);
+    NSPoint   dragPoint             = [tabView convertPoint:event.locationInWindow fromView:nil];
+    
+    
+    NSButton *draggingTab           = [self tabWithTitle:tab.title];
+    NSArray  *draggingConstraints   = @[[NSLayoutConstraint constraintWithItem:draggingTab attribute:NSLayoutAttributeLeading
+                                                                     relatedBy:NSLayoutRelationEqual
+                                                                        toItem:tabView attribute:NSLayoutAttributeLeading
+                                                                    multiplier:1 constant:tabX],                                // VARIABLE
+                                        
+                                        [NSLayoutConstraint constraintWithItem:draggingTab attribute:NSLayoutAttributeTop
+                                                                     relatedBy:NSLayoutRelationEqual
+                                                                        toItem:tabView attribute:NSLayoutAttributeTop
+                                                                    multiplier:1 constant:0],                                   // CONSTANT
+                                        [NSLayoutConstraint constraintWithItem:draggingTab attribute:NSLayoutAttributeBottom
+                                                                     relatedBy:NSLayoutRelationEqual
+                                                                        toItem:tabView attribute:NSLayoutAttributeBottom
+                                                                    multiplier:1 constant:0]];                                  // CONSTANT
+    
+    LITabCell *cellCopy = [tab.cell copy];
+    
+    cellCopy.borderMask = cellCopy.borderMask | LIBorderMaskLeft | LIBorderMaskRight;
+    
+    [draggingTab setCell:cellCopy];
+
+    [tabView addSubview:draggingTab];
+    [tabView addConstraints:draggingConstraints];
+    
+    [tab setHidden:YES];
+    
+    BOOL reordered = NO;
     
     while (event.type != NSLeftMouseUp) {
         event = [self.window nextEventMatchingMask:NSLeftMouseDraggedMask|NSLeftMouseUpMask];
+        
+        // move the dragged tab
+        NSPoint nextPoint = [tabView convertPoint:event.locationInWindow fromView:nil];
+        
+        CGFloat nextX = tabX + (nextPoint.x - dragPoint.x);
+        
+        [draggingConstraints[0] setConstant:nextX];
+        [tabView layoutSubtreeIfNeeded];
+        [draggingTab scrollRectToVisible:draggingTab.bounds];
+        
+        // test for reordering...
+        if (NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != tabView.subviews.firstObject) {
+            // shift left
+            NSUInteger index = [orderedTabs indexOfObject:tab];
+            [orderedTabs exchangeObjectAtIndex:index withObjectAtIndex:index - 1];
+            
+            [self layoutTabs:orderedTabs inView:tabView];
+            [tabView addConstraints:draggingConstraints];
+            
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                [context setAllowsImplicitAnimation:YES];
+                [tabView layoutSubtreeIfNeeded];
+            } completionHandler:nil];
+            
+            reordered = YES;
+            
+        } else if (NSMidX(draggingTab.frame) > NSMaxX(tab.frame) && tab != tabView.subviews.lastObject) {
+            // shift right
+            NSUInteger index = [orderedTabs indexOfObject:tab];
+            [orderedTabs exchangeObjectAtIndex:index+1 withObjectAtIndex:index];
+            
+            [self layoutTabs:orderedTabs inView:tabView];
+            [tabView addConstraints:draggingConstraints];
+            
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                [context setAllowsImplicitAnimation:YES];
+                [tabView layoutSubtreeIfNeeded];
+            } completionHandler:nil];
+            
+            
+            reordered = YES;
+        }
     }
+
+    [tab setHidden:NO];
+
+    [draggingTab removeFromSuperview];
+    [tabView removeConstraints:draggingConstraints];
     
-    NSLog(@"<<<%s", __PRETTY_FUNCTION__);
+    
+    if (reordered) {
+        NSArray *orderedItems = [orderedTabs valueForKeyPath:@"cell.representedObject"];
+        [self.dataSource tabControlDidReorderItems:self orderedItems:orderedItems];
+        [self reloadData]; // mildly expensive but ensures state...
+    }
 }
 
 #pragma mark -
@@ -281,6 +374,8 @@ static char LISCrollViewDocumentFrameObservationContext;
         [newItems addObject:[self.dataSource tabControl:self itemAtIndex:i]];
     }
     
+    NSMutableArray *newTabs = [[NSMutableArray alloc] init];
+    
     for (id item in newItems) {
         NSButton *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
         
@@ -295,10 +390,11 @@ static char LISCrollViewDocumentFrameObservationContext;
                                                                 userInfo:@{@"item" : item}]];
         }
 
-        [tabView addSubview:button];
+        [newTabs addObject:button];
     }
-    
-    [self layoutTabs:tabView.subviews inView:tabView];
+
+    [tabView setSubviews:newTabs];
+    [self layoutTabs:newTabs inView:tabView];
     
     self.items = newItems;
     self.scrollView.documentView = (self.items.count) ? tabView : nil;
@@ -372,25 +468,23 @@ static char LISCrollViewDocumentFrameObservationContext;
     return tab;
 }
 
+- (NSButton *)existingTabWithItem:(id)item {
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if (button != self.draggingTab) {
+            if ([[[button cell] representedObject] isEqual:item]) {
+                return button;
+            }
+        }
+    }
+    return nil;
+}
+
 #pragma mark -
 #pragma mark ScrollView Tracking
 
 - (NSButton *)trackedButtonWithEvent:(NSEvent *)theEvent {
     id item = theEvent.trackingArea.userInfo[@"item"];
-
-    if (item) {
-        NSUInteger itemIndex = [self.items indexOfObject:item];
-
-        if (itemIndex != NSNotFound) {
-            NSArray *buttons = [self.scrollView.documentView subviews];
-        
-            if (itemIndex < buttons.count) {
-                return buttons[itemIndex];
-            }
-        }
-    }
-    
-    return nil;
+    return (item != nil) ? [self existingTabWithItem:item] : nil;
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
@@ -398,14 +492,6 @@ static char LISCrollViewDocumentFrameObservationContext;
 }
 - (void)mouseExited:(NSEvent *)theEvent {
     [[[self trackedButtonWithEvent:theEvent] cell] setShowsMenu:NO];
-}
-
-
-#pragma mark -
-#pragma mark Layout
-
-- (NSSize)intrinsicContentSize {
-    return NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
 }
 
 #pragma mark -

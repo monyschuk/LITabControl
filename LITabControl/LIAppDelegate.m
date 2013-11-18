@@ -57,7 +57,7 @@
 }
 
 - (void)tabControlDidReorderItems:(LITabControl *)tabControl orderedItems:(NSArray *)itemArray {
-    
+    tabs = itemArray;
 }
 
 - (void)tabControlDidChangeSelection:(NSNotification *)notification {

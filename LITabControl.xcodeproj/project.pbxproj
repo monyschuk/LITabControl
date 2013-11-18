@@ -93,6 +93,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4D117700183A1C320055CEB0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4DD302B01833BEA10084A037 /* LITabLeftTemplate.pdf */,
+				4DD302B11833BEA10084A037 /* LITabPlusTemplate.pdf */,
+				4DD302B21833BEA10084A037 /* LITabRightTemplate.pdf */,
+				4D1176FE183A0BEE0055CEB0 /* LIPullDownTemplate.pdf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		4DC2D64718322F8300FA57A8 = {
 			isa = PBXGroup;
 			children = (
@@ -185,10 +196,7 @@
 				4D846D5C183909D8003573EF /* LITabCell.m */,
 				4DC2D6991833A0E600FA57A8 /* NSImage+LITabControl.h */,
 				4DC2D69A1833A0E600FA57A8 /* NSImage+LITabControl.m */,
-				4DD302B01833BEA10084A037 /* LITabLeftTemplate.pdf */,
-				4DD302B11833BEA10084A037 /* LITabPlusTemplate.pdf */,
-				4DD302B21833BEA10084A037 /* LITabRightTemplate.pdf */,
-				4D1176FE183A0BEE0055CEB0 /* LIPullDownTemplate.pdf */,
+				4D117700183A1C320055CEB0 /* Resources */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
