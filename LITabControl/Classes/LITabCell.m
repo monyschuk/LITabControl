@@ -95,16 +95,29 @@
     NSPoint location = [controlView convertPoint:[theEvent locationInWindow] fromView:nil];
     
     if (self.menu.itemArray.count > 0 &&  NSPointInRect(location, popupRect)) {
+
+        // this enclosingTabControl business is a bit hokey
+        // but it ensures that the receiver of context popup
+        // actions can determine which tab is associated with
+        // the action. It also ensures that the dataSource and
+        // target of the control updates associated views prior
+        // to context menu display...
+        
         id view = controlView;
-        LITabControl *enclosingControl = nil;
+        LITabControl *enclosingTabControl = nil;
         while ((view = [view superview])) {
             if ([view isKindOfClass:[LITabControl class]]) {
-                enclosingControl = view;
+                enclosingTabControl = view;
                 break;
             }
         }
         
-        [enclosingControl setSelectedItem:self.representedObject];
+        if (enclosingTabControl) {
+            [enclosingTabControl setSelectedItem:self.representedObject];
+            [NSApp sendAction:enclosingTabControl.action to:enclosingTabControl.target from:enclosingTabControl];
+            [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlDidChangeSelectionNotification object:enclosingTabControl];
+        }
+        
         [self.menu popUpMenuPositioningItem:self.menu.itemArray[0] atLocation:NSMakePoint(NSMidX(popupRect), NSMaxY(popupRect)) inView:controlView];
         return YES;
         
