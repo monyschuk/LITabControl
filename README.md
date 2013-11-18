@@ -24,7 +24,7 @@ To learn how to use LITabControl, run the LITabControl project in Xcode. LIAppDe
 
 To respond to tab clicks - set LITabControl's target and action properties, or listen for LITabControlDidChangeSelectionNotification notifications. 
 
-To respond to requests to add new tabs, set LITabControl's addTarget and addAction properties. Your method used to add a tab should behave like this:
+To add new tabs, set LITabControl's addTarget and addAction properties. Your method used to add a tab should behave like this:
 
 ```
 - (IBAction)addTab:(id)sender {
