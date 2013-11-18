@@ -29,7 +29,7 @@
 
 @end
 
-extern NSString *LITabControlDidChangeSelectionNotification;
+extern NSString *LITabControlSelectionDidChangeNotification;
 
 @interface LITabControl : NSControl
 

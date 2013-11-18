@@ -115,7 +115,7 @@
         if (enclosingTabControl) {
             [enclosingTabControl setSelectedItem:self.representedObject];
             [NSApp sendAction:enclosingTabControl.action to:enclosingTabControl.target from:enclosingTabControl];
-            [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlDidChangeSelectionNotification object:enclosingTabControl];
+            [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlSelectionDidChangeNotification object:enclosingTabControl];
         }
         
         [self.menu popUpMenuPositioningItem:self.menu.itemArray[0] atLocation:NSMakePoint(NSMidX(popupRect), NSMaxY(popupRect)) inView:controlView];

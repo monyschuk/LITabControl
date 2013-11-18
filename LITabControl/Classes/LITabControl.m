@@ -264,7 +264,7 @@ static char LIScrollViewObservationContext;
     }
 
     [[NSApplication sharedApplication] sendAction:self.action to:self.target from:self];
-    [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlDidChangeSelectionNotification object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlSelectionDidChangeNotification object:self];
 
     if ([self.dataSource tabControl:self canReorderItem:[[sender cell] representedObject]]) {
         [self reorderTab:sender withEvent:[NSApp currentEvent]];
@@ -412,12 +412,12 @@ static char LIScrollViewObservationContext;
     if (_dataSource != dataSource) {
         
         if (_dataSource && [_dataSource respondsToSelector:@selector(tabControlDidChangeSelection:)])
-            [[NSNotificationCenter defaultCenter] removeObserver:_dataSource name:LITabControlDidChangeSelectionNotification object:self];
+            [[NSNotificationCenter defaultCenter] removeObserver:_dataSource name:LITabControlSelectionDidChangeNotification object:self];
         
         _dataSource = dataSource;
         
         if (_dataSource && [_dataSource respondsToSelector:@selector(tabControlDidChangeSelection:)])
-            [[NSNotificationCenter defaultCenter] addObserver:_dataSource selector:@selector(tabControlDidChangeSelection:) name:LITabControlDidChangeSelectionNotification object:self];
+            [[NSNotificationCenter defaultCenter] addObserver:_dataSource selector:@selector(tabControlDidChangeSelection:) name:LITabControlSelectionDidChangeNotification object:self];
         
         [self reloadData];
     }
@@ -563,4 +563,4 @@ static char LIScrollViewObservationContext;
 
 @end
 
-NSString *LITabControlDidChangeSelectionNotification = @"LITabControlDidChangeSelectionNotification";
+NSString *LITabControlSelectionDidChangeNotification = @"LITabControlSelectionDidChangeNotification";
