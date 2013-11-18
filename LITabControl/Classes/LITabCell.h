@@ -18,6 +18,7 @@ typedef enum {
 @interface LITabCell : NSButtonCell
 
 @property(nonatomic) BOOL showsMenu;
+@property(readonly, nonatomic) BOOL isShowingMenu;
 
 @property(nonatomic) LIBorderMask borderMask;
 @property(nonatomic, copy) NSColor *borderColor;

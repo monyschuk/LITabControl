@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D1176FF183A0BEE0055CEB0 /* LIPullDownTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4D1176FE183A0BEE0055CEB0 /* LIPullDownTemplate.pdf */; };
 		4D846D5D183909D8003573EF /* LITabCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D846D5C183909D8003573EF /* LITabCell.m */; };
-		4D846D5F18391D4E003573EF /* LIPullDownTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4D846D5E18391D4E003573EF /* LIPullDownTemplate.pdf */; };
 		4DC2D65418322F8300FA57A8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC2D65318322F8300FA57A8 /* Cocoa.framework */; };
 		4DC2D65E18322F8300FA57A8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4DC2D65C18322F8300FA57A8 /* InfoPlist.strings */; };
 		4DC2D66018322F8300FA57A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC2D65F18322F8300FA57A8 /* main.m */; };
@@ -39,9 +39,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4D1176FE183A0BEE0055CEB0 /* LIPullDownTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = LIPullDownTemplate.pdf; sourceTree = "<group>"; };
 		4D846D5B183909D8003573EF /* LITabCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LITabCell.h; sourceTree = "<group>"; };
 		4D846D5C183909D8003573EF /* LITabCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LITabCell.m; sourceTree = "<group>"; };
-		4D846D5E18391D4E003573EF /* LIPullDownTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = LIPullDownTemplate.pdf; sourceTree = "<group>"; };
 		4DC2D65018322F8300FA57A8 /* LITabControl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LITabControl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DC2D65318322F8300FA57A8 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		4DC2D65618322F8300FA57A8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -188,7 +188,7 @@
 				4DD302B01833BEA10084A037 /* LITabLeftTemplate.pdf */,
 				4DD302B11833BEA10084A037 /* LITabPlusTemplate.pdf */,
 				4DD302B21833BEA10084A037 /* LITabRightTemplate.pdf */,
-				4D846D5E18391D4E003573EF /* LIPullDownTemplate.pdf */,
+				4D1176FE183A0BEE0055CEB0 /* LIPullDownTemplate.pdf */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -274,7 +274,7 @@
 				4DC2D65E18322F8300FA57A8 /* InfoPlist.strings in Resources */,
 				4DD302B51833BEA10084A037 /* LITabRightTemplate.pdf in Resources */,
 				4DC2D66C18322F8300FA57A8 /* Images.xcassets in Resources */,
-				4D846D5F18391D4E003573EF /* LIPullDownTemplate.pdf in Resources */,
+				4D1176FF183A0BEE0055CEB0 /* LIPullDownTemplate.pdf in Resources */,
 				4DC2D66418322F8300FA57A8 /* Credits.rtf in Resources */,
 				4DD302B41833BEA10084A037 /* LITabPlusTemplate.pdf in Resources */,
 				4DC2D66A18322F8300FA57A8 /* MainMenu.xib in Resources */,

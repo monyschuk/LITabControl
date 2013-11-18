@@ -116,10 +116,10 @@
     BOOL isDocumentClipped = (contentView != nil) && (self.items.count * self.minTabWidth > NSWidth(contentView.bounds));
     
     if (isDocumentClipped) {
-        [_scrollLeftButton setHidden:NO];
+        [_scrollLeftButton  setHidden:NO];
         [_scrollRightButton setHidden:NO];
     } else {
-        [_scrollLeftButton setHidden:YES];
+        [_scrollLeftButton  setHidden:YES];
         [_scrollRightButton setHidden:YES];
     }
 }
@@ -175,6 +175,7 @@ static char LISCrollViewDocumentFrameObservationContext;
 
 - (void)setBorderColor:(NSColor *)borderColor {
     [self.cell setBorderColor:borderColor];
+    
 }
 - (void)setBackgroundColor:(NSColor *)backgroundColor {
     [self.cell setBackgroundColor:backgroundColor];
@@ -191,35 +192,67 @@ static char LISCrollViewDocumentFrameObservationContext;
     }
 }
 
-- (IBAction)add:(id)sender {
+- (void)add:(id)sender {
     [[NSApplication sharedApplication] sendAction:self.addAction to:self.addTarget from:self];
 }
 
-- (IBAction)goLeft:(id)sender {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-}
-- (IBAction)goRight:(id)sender {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
+- (void)goLeft:(id)sender {
 }
 
-- (IBAction)selectTab:(id)sender {
+- (void)goRight:(id)sender {
+}
+
+- (void)selectTab:(id)sender {
     NSButton *selectedButton = sender;
-    
+
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        [button setState:(button == selectedButton) ? 1 : 0];
+    }
+
+    [[NSApplication sharedApplication] sendAction:self.action to:self.target from:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlDidChangeSelectionNotification object:self];
+
+    if ([self.dataSource tabControl:self canReorderItem:[[sender cell] representedObject]]) {
+        [self reorderTab:sender withEvent:[NSApp currentEvent]];
+    }
+
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
         [context setAllowsImplicitAnimation:YES];
         [selectedButton scrollRectToVisible:[selectedButton bounds]];
-    } completionHandler:^{
-    }];
+    } completionHandler:nil];
+}
+
+#pragma mark -
+#pragma mark Reordering
+
+- (void)reorderTab:(NSButton *)tab withEvent:(NSEvent *)event {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
     
-    for (NSButton *button in [self.scrollView.documentView subviews]) {
-        if (button != selectedButton) {
-            [button setState:0];
-        }
+    NSButton *draggingTab = [self tabWithTitle:tab.title];
+    [draggingTab setCell:[tab.cell copy]];
+    
+    while (event.type != NSLeftMouseUp) {
+        event = [self.window nextEventMatchingMask:NSLeftMouseDraggedMask|NSLeftMouseUpMask];
     }
     
-    [[NSApplication sharedApplication] sendAction:self.action to:self.target from:self];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlDidChangeSelectionNotification object:self];
+    NSLog(@"<<<%s", __PRETTY_FUNCTION__);
+}
+
+#pragma mark -
+#pragma mark Selection
+
+- (id)selectedItem {
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if ([button state] == 1) {
+            return [[button cell] representedObject];
+        }
+    }
+    return nil;
+}
+- (void)setSelectedItem:(id)selectedItem {
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        [button setState:[[[button cell] representedObject] isEqual:selectedItem] ? 1 : 0];
+    }
 }
 
 #pragma mark -
@@ -248,9 +281,10 @@ static char LISCrollViewDocumentFrameObservationContext;
         [newItems addObject:[self.dataSource tabControl:self itemAtIndex:i]];
     }
     
-    NSButton *prev = nil;
     for (id item in newItems) {
-        NSButton *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item] view:tabView];
+        NSButton *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
+        
+        [[button cell] setRepresentedObject:item];
         
         NSMenu *menu = [self.dataSource tabControl:self menuForItem:item];
         if (menu != nil) {
@@ -262,23 +296,9 @@ static char LISCrollViewDocumentFrameObservationContext;
         }
 
         [tabView addSubview:button];
-        
-        [tabView addConstraint:
-         [NSLayoutConstraint constraintWithItem:button attribute:NSLayoutAttributeLeading
-                                      relatedBy:NSLayoutRelationEqual
-                                         toItem:(prev != nil ? prev : tabView)
-                                      attribute:(prev != nil ? NSLayoutAttributeTrailing : NSLayoutAttributeLeading)
-                                     multiplier:1 constant:0]];
-        prev = button;
     }
     
-    if (prev) {
-        [tabView addConstraint:
-         [NSLayoutConstraint constraintWithItem:prev attribute:NSLayoutAttributeTrailing
-                                      relatedBy:NSLayoutRelationEqual
-                                         toItem:tabView attribute:NSLayoutAttributeTrailing
-                                     multiplier:1 constant:0]];
-    }
+    [self layoutTabs:tabView.subviews inView:tabView];
     
     self.items = newItems;
     self.scrollView.documentView = (self.items.count) ? tabView : nil;
@@ -296,16 +316,44 @@ static char LISCrollViewDocumentFrameObservationContext;
     [self updateButtons];
 }
 
-- (NSButton *)tabWithTitle:(NSString *)title view:(NSView *)view {
+- (void)layoutTabs:(NSArray *)tabs inView:(NSView *)tabView {
+    // remove old constraints, if any...
+    [tabView removeConstraints:tabView.constraints];
+    
+    // constrain passed tabs into a horizontal list...
+    NSButton *prev = nil;
+    for (NSButton *button in tabs) {
+        [tabView addConstraints:
+         [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[button]|" options:0 metrics:nil views:@{@"button":button}]];
+        
+        [tabView addConstraint:
+         [NSLayoutConstraint constraintWithItem:button attribute:NSLayoutAttributeLeading
+                                      relatedBy:NSLayoutRelationEqual
+                                         toItem:(prev != nil ? prev : tabView)
+                                      attribute:(prev != nil ? NSLayoutAttributeTrailing : NSLayoutAttributeLeading)
+                                     multiplier:1 constant:0]];
+        prev = button;
+    }
+    
+    if (prev) {
+        [tabView addConstraint:
+         [NSLayoutConstraint constraintWithItem:prev attribute:NSLayoutAttributeTrailing
+                                      relatedBy:NSLayoutRelationEqual
+                                         toItem:tabView attribute:NSLayoutAttributeTrailing
+                                     multiplier:1 constant:0]];
+    }
+}
+
+- (NSButton *)tabWithTitle:(NSString *)title {
     LITabCell *tabCell = [[LITabCell alloc] initTextCell:title];
     
     tabCell.target = self;
     tabCell.action = @selector(selectTab:);
-    
+    [tabCell sendActionOn:NSLeftMouseDownMask];
+
     tabCell.imagePosition   = NSNoImage;
     tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
     tabCell.font            = [NSFont fontWithName:@"HelveticaNeue-Medium" size:13];
-    
     NSButton *tab = [self viewWithClass:[NSButton class]];
 
     [tab setCell:tabCell];
@@ -320,10 +368,6 @@ static char LISCrollViewDocumentFrameObservationContext;
                                     relatedBy:NSLayoutRelationLessThanOrEqual
                                        toItem:nil attribute:NSLayoutAttributeNotAnAttribute
                                    multiplier:1.0 constant:self.maxTabWidth]]];
-    
-    [view addSubview:tab];
-    [view addConstraints:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[tab]|" options:0 metrics:nil views:@{@"tab": tab}]];
     
     return tab;
 }
@@ -350,14 +394,10 @@ static char LISCrollViewDocumentFrameObservationContext;
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-    LITabCell *cell = [[self trackedButtonWithEvent:theEvent] cell];
-    
-    cell.showsMenu = YES;
+    [[[self trackedButtonWithEvent:theEvent] cell] setShowsMenu:YES];
 }
 - (void)mouseExited:(NSEvent *)theEvent {
-    LITabCell *cell = [[self trackedButtonWithEvent:theEvent] cell];
-    
-    cell.showsMenu = NO;
+    [[[self trackedButtonWithEvent:theEvent] cell] setShowsMenu:NO];
 }
 
 

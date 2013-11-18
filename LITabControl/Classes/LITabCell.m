@@ -84,7 +84,7 @@
     NSRect popupRect = [self popupRectWithFrame:cellFrame];
     NSPoint location = [controlView convertPoint:[theEvent locationInWindow] fromView:nil];
     
-    if (self.menu.itemArray.count > 0 &&  location.x >= NSMinX(popupRect)) {
+    if (self.menu.itemArray.count > 0 &&  NSPointInRect(location, popupRect)) {
         [self.menu popUpMenuPositioningItem:self.menu.itemArray[0] atLocation:NSMakePoint(NSMidX(popupRect), NSMaxY(popupRect)) inView:controlView];
         return YES;
     } else {

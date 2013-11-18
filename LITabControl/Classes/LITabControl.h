@@ -21,8 +21,8 @@
 - (NSString *)tabControl:(LITabControl *)tabControl titleForItem:(id)item;
 - (void)tabControl:(LITabControl *)tabControl setTitle:(NSString *)title forItem:(id)item;
 
-- (void)tabControlDidReorderItems:(LITabControl *)tabControl;
-- (BOOL)tabControl:(LITabControl *)tabControl shouldReorderItem:(id)item;
+- (BOOL)tabControl:(LITabControl *)tabControl canReorderItem:(id)item;
+- (void)tabControlDidReorderItems:(LITabControl *)tabControl orderedItems:(NSArray *)itemArray;
 
 @optional
 - (void)tabControlDidChangeSelection:(NSNotification *)notification;

@@ -52,15 +52,16 @@
 - (void)tabControl:(LITabControl *)tabControl setTitle:(NSString *)title forItem:(id)item {
 }
 
-- (void)tabControlDidReorderItems:(LITabControl *)tabControl {
-    
-}
-- (BOOL)tabControl:(LITabControl *)tabControl shouldReorderItem:(id)item {
+- (BOOL)tabControl:(LITabControl *)tabControl canReorderItem:(id)item {
     return YES;
 }
 
+- (void)tabControlDidReorderItems:(LITabControl *)tabControl orderedItems:(NSArray *)itemArray {
+    
+}
+
 - (void)tabControlDidChangeSelection:(NSNotification *)notification {
-    NSLog(@"%s", __PRETTY_FUNCTION__);
+    NSLog(@"%s (selected item = %@)", __PRETTY_FUNCTION__, self.tabControl.selectedItem);
 }
 
 @end
