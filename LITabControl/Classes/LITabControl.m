@@ -380,11 +380,13 @@ static char LIScrollViewObservationContext;
     [draggingTab removeFromSuperview];
     [tabView removeConstraints:draggingConstraints];
     
-    
     if (reordered) {
         NSArray *orderedItems = [orderedTabs valueForKeyPath:@"cell.representedObject"];
         [self.dataSource tabControlDidReorderItems:self orderedItems:orderedItems];
         [self reloadData]; // mildly expensive but ensures state...
+        
+        
+        [self setSelectedItem:[tab.cell representedObject]];
     }
 }
 
