@@ -274,6 +274,8 @@ static char LIScrollViewObservationContext;
         [context setAllowsImplicitAnimation:YES];
         [selectedButton scrollRectToVisible:[selectedButton bounds]];
     } completionHandler:nil];
+    
+    [self invalidateRestorableState];
 }
 
 #pragma mark -
@@ -403,6 +405,12 @@ static char LIScrollViewObservationContext;
 }
 - (void)setSelectedItem:(id)selectedItem {
     for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if ([[[button cell] representedObject] isEqual:selectedItem]) {
+            [button setState:1];
+            [button scrollRectToVisible:[button bounds]];
+        } else {
+            [button setState:0];
+        }
         [button setState:[[[button cell] representedObject] isEqual:selectedItem] ? 1 : 0];
     }
 }
@@ -469,6 +477,8 @@ static char LIScrollViewObservationContext;
     }
     
     [self updateButtons];
+    
+    [self invalidateRestorableState];
 }
 
 - (void)layoutTabs:(NSArray *)tabs inView:(NSView *)tabView {
@@ -561,6 +571,56 @@ static char LIScrollViewObservationContext;
 }
 - (BOOL)isFlipped {
     return YES;
+}
+
+#pragma mark -
+#pragma mark State Restoration
+
+// NOTE: to enable state restoration, be sure to either assign an identifier
+// to the LITabControl instance within IB or prior to adding its window view hierarchy.
+
+#define kScrollXOffsetKey @"scrollOrigin"
+#define kSelectedButtonIndexKey @"selectedButtonIndex"
+
+- (void)encodeRestorableStateWithCoder:(NSCoder *)coder {
+    [super encodeRestorableStateWithCoder:coder];
+    
+    CGFloat scrollXOffset = 0;
+    NSUInteger selectedButtonIndex = NSNotFound;
+    
+    scrollXOffset = self.scrollView.contentView.bounds.origin.x;
+    
+    NSUInteger index = 0;
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if (button.state == 1) {
+            selectedButtonIndex = index;
+            break;
+        }
+        index += 1;
+    }
+    
+    [coder encodeDouble:scrollXOffset forKey:kScrollXOffsetKey];
+    [coder encodeInteger:selectedButtonIndex forKey:kSelectedButtonIndexKey];
+}
+
+- (void)restoreStateWithCoder:(NSCoder *)coder {
+    [super restoreStateWithCoder:coder];
+
+    CGFloat scrollXOffset = [coder decodeDoubleForKey:kScrollXOffsetKey];
+    NSUInteger selectedButtonIndex = [coder decodeIntegerForKey:kSelectedButtonIndexKey];
+
+    NSRect bounds = self.scrollView.contentView.bounds; bounds.origin.x = scrollXOffset;
+    self.scrollView.contentView.bounds = bounds;
+    
+    NSUInteger index = 0;
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if (index == selectedButtonIndex) {
+            [button setState:1];
+        } else {
+            [button setState:0];
+        }
+        index += 1;
+    }
 }
 
 @end
