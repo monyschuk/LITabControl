@@ -182,6 +182,7 @@ static char LIScrollViewObservationContext;
 
 - (void)scrollViewDidScroll:(NSNotification *)notification {
     [self updateButtons];
+    [self invalidateRestorableState];
 }
 
 #pragma mark -
@@ -201,8 +202,6 @@ static char LIScrollViewObservationContext;
 - (void)setAddAction:(SEL)addAction {
     if (_addAction != addAction) {
         _addAction = addAction;
-        
-        [self updateButtons];
     }
 }
 
@@ -219,9 +218,7 @@ static char LIScrollViewObservationContext;
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setAllowsImplicitAnimation:YES];
             [tab scrollRectToVisible:[tab bounds]];
-        } completionHandler:^{
-            [self invalidateRestorableState];
-        }];
+        } completionHandler:nil];
     }
 }
 
@@ -244,9 +241,7 @@ static char LIScrollViewObservationContext;
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setAllowsImplicitAnimation:YES];
             [tab scrollRectToVisible:[tab bounds]];
-        } completionHandler:^{
-            [self invalidateRestorableState];
-        }];
+        } completionHandler:nil];
     }
 }
 
