@@ -208,6 +208,8 @@ static char LIScrollViewObservationContext;
 
 - (void)add:(id)sender {
     [[NSApplication sharedApplication] sendAction:self.addAction to:self.addTarget from:self];
+    
+    [self invalidateRestorableState];
 }
 
 - (void)goLeft:(id)sender {
@@ -217,7 +219,9 @@ static char LIScrollViewObservationContext;
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setAllowsImplicitAnimation:YES];
             [tab scrollRectToVisible:[tab bounds]];
-        } completionHandler:nil];
+        } completionHandler:^{
+            [self invalidateRestorableState];
+        }];
     }
 }
 
@@ -240,7 +244,9 @@ static char LIScrollViewObservationContext;
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setAllowsImplicitAnimation:YES];
             [tab scrollRectToVisible:[tab bounds]];
-        } completionHandler:nil];
+        } completionHandler:^{
+            [self invalidateRestorableState];
+        }];
     }
 }
 
