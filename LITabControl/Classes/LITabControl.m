@@ -407,12 +407,18 @@ static char LIScrollViewObservationContext;
     for (NSButton *button in [self.scrollView.documentView subviews]) {
         if ([[[button cell] representedObject] isEqual:selectedItem]) {
             [button setState:1];
-            [button scrollRectToVisible:[button bounds]];
+            
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                [context setAllowsImplicitAnimation:YES];
+                [button scrollRectToVisible:[button bounds]];
+            } completionHandler:nil];
+            
         } else {
             [button setState:0];
         }
-        [button setState:[[[button cell] representedObject] isEqual:selectedItem] ? 1 : 0];
     }
+    
+    [self invalidateRestorableState];
 }
 
 #pragma mark -
@@ -507,6 +513,8 @@ static char LIScrollViewObservationContext;
                                          toItem:tabView attribute:NSLayoutAttributeTrailing
                                      multiplier:1 constant:0]];
     }
+    
+    [tabView layoutSubtreeIfNeeded];
 }
 
 - (NSButton *)tabWithTitle:(NSString *)title {
@@ -577,7 +585,8 @@ static char LIScrollViewObservationContext;
 #pragma mark State Restoration
 
 // NOTE: to enable state restoration, be sure to either assign an identifier
-// to the LITabControl instance within IB or prior to adding its window view hierarchy.
+// to the LITabControl instance within IB or, if the control is created programmatically,
+// prior to adding it to your window's view hierarchy.
 
 #define kScrollXOffsetKey @"scrollOrigin"
 #define kSelectedButtonIndexKey @"selectedButtonIndex"
