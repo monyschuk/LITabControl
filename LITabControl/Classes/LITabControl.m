@@ -582,7 +582,7 @@ static char LIScrollViewObservationContext;
     
     if (button != nil) {
         LITabCell *cell = button.cell;
-        NSRect titleRect = NSInsetRect([cell titleRectForBounds:button.bounds], 1, 2);
+        NSRect titleRect = NSOffsetRect(NSInsetRect([cell titleRectForBounds:button.bounds], 1, 2), 0, 2);
         
         self.editingField = [[NSTextField alloc] initWithFrame:titleRect];
 
@@ -610,8 +610,10 @@ static char LIScrollViewObservationContext;
     NSString *title = self.editingField.stringValue;
     NSButton *button = (id)[self.editingField superview];
     
-    [button setTitle:title];
-    [self.dataSource tabControl:self setTitle:title forItem:[button.cell representedObject]];
+    if (title.length > 0) {
+        [button setTitle:title];
+        [self.dataSource tabControl:self setTitle:title forItem:[button.cell representedObject]];
+    }
 
     [self.editingField removeFromSuperview];
     self.editingField.delegate = nil;

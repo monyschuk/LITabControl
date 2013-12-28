@@ -27,6 +27,7 @@
         
         [self setBordered:NO];
         [self setHighlightsBy:NSNoCellMask];
+        [self setLineBreakMode:NSLineBreakByTruncatingTail];
     }
     return self;
 }
@@ -90,6 +91,19 @@
     return popupRect;
 }
 
+- (NSRect)titleRectForBounds:(NSRect)theRect {
+    NSRect titleRect = [super titleRectForBounds:theRect];
+    
+    if (self.menu != nil) {
+        CGFloat inset = NSMaxX(theRect) - NSMinX([self popupRectWithFrame:theRect]);
+        
+        titleRect = NSOffsetRect(titleRect, 0, -2);
+        titleRect = NSInsetRect(titleRect, inset, 0);
+        
+    }
+    return titleRect;
+}
+
 - (BOOL)trackMouse:(NSEvent *)theEvent inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)flag {
     NSRect popupRect = [self popupRectWithFrame:cellFrame];
     NSPoint location = [controlView convertPoint:[theEvent locationInWindow] fromView:nil];
@@ -135,9 +149,11 @@
     }
     
     if (self.title.length && self.imagePosition != NSImageOnly) {
+        NSRect titleRect = [self titleRectForBounds:cellFrame];
+        
         NSMutableAttributedString *attributedTitle = self.attributedTitle.mutableCopy;
         [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
-        [self drawTitle:attributedTitle withFrame:NSOffsetRect(cellFrame, 0, -2) inView:controlView];
+        [self drawTitle:attributedTitle withFrame:titleRect inView:controlView];
     }
     
     NSRect *borderRects;
