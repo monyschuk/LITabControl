@@ -14,12 +14,14 @@
 #define DF_MIN_TAB_WIDTH    (72.f * 2.75)
 #define DF_MAX_TAB_WIDTH    (72.f * 3.25)
 
-@interface LITabControl()
+@interface LITabControl() <NSTextFieldDelegate>
 
 @property(nonatomic, strong) NSArray        *items;
 
 @property(nonatomic, strong) NSScrollView   *scrollView;
 @property(nonatomic, strong) NSButton       *addButton, *scrollLeftButton, *scrollRightButton, *draggingTab;
+
+@property(nonatomic, strong) NSTextField    *editingField;
 
 - (NSButton *)existingTabWithItem:(id)item;
 
@@ -573,6 +575,50 @@ static char LIScrollViewObservationContext;
 }
 
 #pragma mark -
+#pragma mark Editing
+
+- (void)editItem:(id)item {
+    NSButton *button = [self existingTabWithItem:item];
+    
+    if (button != nil) {
+        LITabCell *cell = button.cell;
+        NSRect titleRect = NSInsetRect([cell titleRectForBounds:button.bounds], 1, 2);
+        
+        self.editingField = [[NSTextField alloc] initWithFrame:titleRect];
+
+        self.editingField.editable = YES;
+        self.editingField.font = cell.font;
+        self.editingField.alignment = NSCenterTextAlignment;
+        self.editingField.backgroundColor = cell.backgroundColor;
+        self.editingField.focusRingType = NSFocusRingTypeNone;
+
+        NSTextFieldCell *textFieldCell = self.editingField.cell;
+        
+        [textFieldCell setBordered:NO];
+        [textFieldCell setScrollable:YES];
+        
+        self.editingField.stringValue = button.title;
+        
+        [button addSubview:self.editingField];
+        
+        self.editingField.delegate = self;
+        [self.editingField selectText:self];
+    }
+}
+
+- (void)controlTextDidEndEditing:(NSNotification *)obj {
+    NSString *title = self.editingField.stringValue;
+    NSButton *button = (id)[self.editingField superview];
+    
+    [button setTitle:title];
+    [self.dataSource tabControl:self setTitle:title forItem:[button.cell representedObject]];
+
+    [self.editingField removeFromSuperview];
+    self.editingField.delegate = nil;
+    self.editingField = nil;
+}
+
+#pragma mark -
 #pragma mark Drawing
 
 - (BOOL)isOpaque {
@@ -585,8 +631,8 @@ static char LIScrollViewObservationContext;
 #pragma mark -
 #pragma mark State Restoration
 
-// NOTE: to enable state restoration, be sure to either assign an identifier
-// to the LITabControl instance within IB or, if the control is created programmatically,
+// NOTE: to enable state restoration, be sure to either assign an identifier to
+// the LITabControl instance within IB or, if the control is created programmatically,
 // prior to adding it to your window's view hierarchy.
 
 #define kScrollXOffsetKey @"scrollOrigin"

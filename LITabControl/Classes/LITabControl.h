@@ -59,4 +59,9 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 @property(nonatomic) SEL addAction;
 @property(nonatomic, weak) id addTarget;
 
+#pragma mark -
+#pragma mark Editing
+
+- (void)editItem:(id)item;
+
 @end
