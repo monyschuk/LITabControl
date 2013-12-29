@@ -42,6 +42,6 @@ LITabControl is licensed under the MIT license and hosted on GitHub at https://g
 TODO
 ----
 
-* tab title editing
+* ~~tab title editing~~
 * more documentation
 * a more elaborate example
