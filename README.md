@@ -33,15 +33,18 @@ To add new tabs, set LITabControl's addTarget and addAction properties. Your met
 }
 ```
 
+RECENT CHANGES
+--------------
+
+* 12/28/13
+  * Tab title editing, double click to edit.
+  * Fixed vertical text offset in dragged tabs.
+* 12/29/13
+  * Fixed flicker during tab reordering, and bug in reordering first and last tabs.
+
 LICENSE & NOTES
 ---------------
 
 LITabControl is licensed under the MIT license and hosted on GitHub at https://github.com/monyschuk/LITabControl/ Fork the project and feel free to send pull requests with your changes!
 
 
-TODO
-----
-
-* ~~tab title editing~~
-* more documentation
-* a more elaborate example
