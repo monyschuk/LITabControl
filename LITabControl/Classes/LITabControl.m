@@ -364,40 +364,30 @@ static char LIScrollViewObservationContext;
         CGFloat nextX = tabX + (nextPoint.x - dragPoint.x);
         
         [draggingConstraints[0] setConstant:nextX];
-        [tabView layoutSubtreeIfNeeded];
-        
+
         // test for reordering...
-        if (NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != tabView.subviews.firstObject) {
+        if (NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != orderedTabs.firstObject) {
             // shift left
             NSUInteger index = [orderedTabs indexOfObject:tab];
             [orderedTabs exchangeObjectAtIndex:index withObjectAtIndex:index - 1];
             
             [self layoutTabs:orderedTabs inView:tabView];
             [tabView addConstraints:draggingConstraints];
-            
-            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-                [context setAllowsImplicitAnimation:YES];
-                [tabView layoutSubtreeIfNeeded];
-            } completionHandler:nil];
-            
+
             reordered = YES;
             
-        } else if (NSMidX(draggingTab.frame) > NSMaxX(tab.frame) && tab != tabView.subviews.lastObject) {
+        } else if (NSMidX(draggingTab.frame) > NSMaxX(tab.frame) && tab != orderedTabs.lastObject) {
             // shift right
             NSUInteger index = [orderedTabs indexOfObject:tab];
             [orderedTabs exchangeObjectAtIndex:index+1 withObjectAtIndex:index];
             
             [self layoutTabs:orderedTabs inView:tabView];
             [tabView addConstraints:draggingConstraints];
-            
-            [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-                [context setAllowsImplicitAnimation:YES];
-                [tabView layoutSubtreeIfNeeded];
-            } completionHandler:nil];
-            
-            
+
             reordered = YES;
         }
+        
+        [tabView layoutSubtreeIfNeeded];
     }
 
     [draggingTab removeFromSuperview];
