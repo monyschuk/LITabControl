@@ -269,8 +269,13 @@ static char LIScrollViewObservationContext;
     [[NSApplication sharedApplication] sendAction:self.action to:self.target from:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlSelectionDidChangeNotification object:self];
 
-    if ([self.dataSource tabControl:self canReorderItem:[[sender cell] representedObject]]) {
-        [self reorderTab:sender withEvent:[NSApp currentEvent]];
+    NSEvent *currentEvent = [NSApp currentEvent];
+    
+    if (currentEvent.clickCount > 1) {
+        [self editItem:[[sender cell] representedObject]];
+        
+    } else if ([self.dataSource tabControl:self canReorderItem:[[sender cell] representedObject]]) {
+        [self reorderTab:sender withEvent:currentEvent];
     }
 
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
@@ -302,6 +307,7 @@ static char LIScrollViewObservationContext;
     
     
     NSButton *draggingTab           = [self tabWithTitle:tab.title];
+    
     NSArray  *draggingConstraints   = @[[NSLayoutConstraint constraintWithItem:draggingTab attribute:NSLayoutAttributeLeading
                                                                      relatedBy:NSLayoutRelationEqual
                                                                         toItem:tabView attribute:NSLayoutAttributeLeading
@@ -316,7 +322,21 @@ static char LIScrollViewObservationContext;
                                                                         toItem:tabView attribute:NSLayoutAttributeBottom
                                                                     multiplier:1 constant:0]];                                  // CONSTANT
     
-    draggingTab.cell = [tab.cell copy];
+
+    // NOTE:
+    //
+    // Hinkiness alert!
+    //
+    // This code used to assign a copy of the tab's cell to the
+    // dragging button, which caused, for reasons not fully understood,
+    // the dragging button to draw its text somewhat offset from text
+    // drawn in regular cells.
+    //
+    // The code now assigns the dragged tab's cell to the dragging
+    // button. A side effect of this is that on edits, the regular button
+    // needs a setNeedsDisplay: after setting its title value.
+    
+    draggingTab.cell = tab.cell;
 
     [tabView addSubview:draggingTab];
     [tabView addConstraints:draggingConstraints];
@@ -380,10 +400,13 @@ static char LIScrollViewObservationContext;
         }
     }
 
-    [tab setHidden:NO];
-
     [draggingTab removeFromSuperview];
+    draggingTab = nil;
+    
     [tabView removeConstraints:draggingConstraints];
+
+    [tab setHidden:NO];
+    [tab.cell setControlView:tab];
     
     if (reordered) {
         NSArray *orderedItems = [orderedTabs valueForKeyPath:@"cell.representedObject"];
@@ -521,16 +544,18 @@ static char LIScrollViewObservationContext;
 }
 
 - (NSButton *)tabWithTitle:(NSString *)title {
-    LITabCell *tabCell = [[LITabCell alloc] initTextCell:title];
+    LITabCell   *tabCell    = [[LITabCell alloc] initTextCell:title];
     
-    tabCell.target = self;
-    tabCell.action = @selector(selectTab:);
+    tabCell.target          = self;
+    tabCell.action          = @selector(selectTab:);
+    
     [tabCell sendActionOn:NSLeftMouseDownMask];
 
     tabCell.imagePosition   = NSNoImage;
     tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
     tabCell.font            = [NSFont fontWithName:@"HelveticaNeue-Medium" size:13];
-    NSButton *tab = [self viewWithClass:[NSButton class]];
+    
+    NSButton    *tab        = [self viewWithClass:[NSButton class]];
 
     [tab setCell:tabCell];
     
@@ -580,9 +605,14 @@ static char LIScrollViewObservationContext;
 - (void)editItem:(id)item {
     NSButton *button = [self existingTabWithItem:item];
     
+    // end existing editing, if any...
+    if (self.editingField != nil) {
+        [self.window makeFirstResponder:self];
+    }
+    
     if (button != nil) {
         LITabCell *cell = button.cell;
-        NSRect titleRect = NSOffsetRect(NSInsetRect([cell titleRectForBounds:button.bounds], 1, 2), 0, 2);
+        NSRect titleRect = [cell titleRectForBounds:button.bounds];
         
         self.editingField = [[NSTextField alloc] initWithFrame:titleRect];
 
@@ -609,15 +639,17 @@ static char LIScrollViewObservationContext;
 - (void)controlTextDidEndEditing:(NSNotification *)obj {
     NSString *title = self.editingField.stringValue;
     NSButton *button = (id)[self.editingField superview];
-    
+
+    self.editingField.delegate = nil;
+    [self.editingField removeFromSuperview];
+    self.editingField = nil;
+
     if (title.length > 0) {
         [button setTitle:title];
+        [button setNeedsDisplay:YES]; // fix required for tab dragging...
+        
         [self.dataSource tabControl:self setTitle:title forItem:[button.cell representedObject]];
     }
-
-    [self.editingField removeFromSuperview];
-    self.editingField.delegate = nil;
-    self.editingField = nil;
 }
 
 #pragma mark -

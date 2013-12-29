@@ -15,9 +15,7 @@
 #define DF_HIGHLIGHT_COLOR  [NSColor colorWithCalibratedRed:0.119 green:0.399 blue:0.964 alpha:1.000]
 #define DF_BACKGROUND_COLOR [NSColor colorWithCalibratedRed:0.854 green:0.858 blue:0.873 alpha:1.000]
 
-@implementation LITabCell {
-    NSPopUpButtonCell *_popUpCell;
-}
+@implementation LITabCell 
 
 - (id)initTextCell:(NSString *)aString {
     if ((self = [super initTextCell:aString])) {
@@ -35,11 +33,12 @@
 - (id)copyWithZone:(NSZone *)zone {
     LITabCell *copy = [super copyWithZone:zone];
     
-    copy->_showsMenu = _showsMenu;
-    
     copy->_borderMask = _borderMask;
     copy->_borderColor = [_borderColor copyWithZone:zone];
     copy->_backgroundColor = [_backgroundColor copyWithZone:zone];
+
+    copy->_showsMenu = _showsMenu;
+    copy->_isShowingMenu = _isShowingMenu;
     
     return copy;
 }
@@ -91,15 +90,16 @@
     return popupRect;
 }
 
-- (NSRect)titleRectForBounds:(NSRect)theRect {
-    NSRect titleRect = [super titleRectForBounds:theRect];
-    
+- (NSRect)titleRectForBounds:(NSRect)cellFrame {
+    NSSize titleSize = [[self attributedTitle] size];
+    NSRect titleRect = NSMakeRect(NSMinX(cellFrame), floorf(NSMidY(cellFrame) - titleSize.height/2), NSWidth(cellFrame), titleSize.height);
+
     if (self.menu != nil) {
-        CGFloat inset = NSMaxX(theRect) - NSMinX([self popupRectWithFrame:theRect]);
+        NSRect popupRect = [self popupRectWithFrame:cellFrame];
+        CGFloat titleRectInset = ceilf(NSMaxX(cellFrame) - NSMinX(popupRect));
         
         titleRect = NSOffsetRect(titleRect, 0, -2);
-        titleRect = NSInsetRect(titleRect, inset, 0);
-        
+        titleRect = NSInsetRect(titleRect, titleRectInset, 0);
     }
     return titleRect;
 }
@@ -153,7 +153,7 @@
         
         NSMutableAttributedString *attributedTitle = self.attributedTitle.mutableCopy;
         [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
-        [self drawTitle:attributedTitle withFrame:titleRect inView:controlView];
+        [attributedTitle drawInRect:titleRect];
     }
     
     NSRect *borderRects;
