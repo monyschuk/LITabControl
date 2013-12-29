@@ -600,6 +600,9 @@ static char LIScrollViewObservationContext;
         [self.window makeFirstResponder:self];
     }
     
+    // layout items if necessary
+    [self layoutSubtreeIfNeeded];
+    
     if (button != nil) {
         LITabCell *cell = button.cell;
         NSRect titleRect = [cell titleRectForBounds:button.bounds];
