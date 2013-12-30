@@ -467,12 +467,16 @@ static char LIScrollViewObservationContext;
     
     for (id item in newItems) {
         NSButton *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
+        LITabCell *buttonCell = [button cell];
         
-        [[button cell] setRepresentedObject:item];
+        [buttonCell setRepresentedObject:item];
+        
+        // NOTE: menus are dynamic, but we indicate their presence by associating a menu
+        // with the button cell...
         
         NSMenu *menu = [self.dataSource tabControl:self menuForItem:item];
         if (menu != nil) {
-            [[button cell] setMenu:menu];
+            [buttonCell setMenu:[[NSMenu alloc] init]];
             [button addTrackingArea:[[NSTrackingArea alloc] initWithRect:_scrollView.bounds
                                                                  options:NSTrackingMouseEnteredAndExited|NSTrackingActiveInActiveApp|NSTrackingInVisibleRect
                                                                    owner:self

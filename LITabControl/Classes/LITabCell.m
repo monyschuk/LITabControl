@@ -104,39 +104,56 @@
     return titleRect;
 }
 
+- (LITabControl *)enclosingTabControlInView:(NSView *)controlView {
+    id view = controlView;
+    LITabControl *enclosingTabControl = nil;
+    while ((view = [view superview])) {
+        if ([view isKindOfClass:[LITabControl class]]) {
+            enclosingTabControl = view;
+            break;
+        }
+    }
+    return enclosingTabControl;
+}
+
 - (BOOL)trackMouse:(NSEvent *)theEvent inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)flag {
     NSRect popupRect = [self popupRectWithFrame:cellFrame];
     NSPoint location = [controlView convertPoint:[theEvent locationInWindow] fromView:nil];
     
-    if (self.menu.itemArray.count > 0 &&  NSPointInRect(location, popupRect)) {
+    NSMenu *menu = [self menuForEvent:theEvent inRect:cellFrame ofView:controlView];
+    
+    if (menu.itemArray.count > 0 &&  NSPointInRect(location, popupRect)) {
+        [menu popUpMenuPositioningItem:menu.itemArray[0] atLocation:NSMakePoint(NSMidX(popupRect), NSMaxY(popupRect)) inView:controlView];
+        [self setShowsMenu:NO];
+        return YES;
+        
+    } else {
+        return [super trackMouse:theEvent inRect:cellFrame ofView:controlView untilMouseUp:flag];
+    }
+}
 
-        // this enclosingTabControl business is a bit hokey
-        // but it ensures that the receiver of context popup
-        // actions can determine which tab is associated with
-        // the action. It also ensures that the dataSource and
-        // target of the control updates associated views prior
-        // to context menu display...
+- (NSMenu *)menuForEvent:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)view {
+    LITabControl *enclosingTabControl = [self enclosingTabControlInView:view];
+    
+    if (enclosingTabControl) {
+        NSMenu *menu = [enclosingTabControl.dataSource tabControl:enclosingTabControl menuForItem:self.representedObject];
         
-        id view = controlView;
-        LITabControl *enclosingTabControl = nil;
-        while ((view = [view superview])) {
-            if ([view isKindOfClass:[LITabControl class]]) {
-                enclosingTabControl = view;
-                break;
-            }
-        }
-        
-        if (enclosingTabControl) {
+        if (menu != nil) {
+            // this following side-effect is a bit hokey
+            // but it ensures that the receiver of context popup
+            // actions can determine which tab is associated with
+            // the action. It also ensures that the dataSource and
+            // target of the control updates associated views prior
+            // to context menu display...
+            
             [enclosingTabControl setSelectedItem:self.representedObject];
             [NSApp sendAction:enclosingTabControl.action to:enclosingTabControl.target from:enclosingTabControl];
             [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlSelectionDidChangeNotification object:enclosingTabControl];
         }
         
-        [self.menu popUpMenuPositioningItem:self.menu.itemArray[0] atLocation:NSMakePoint(NSMidX(popupRect), NSMaxY(popupRect)) inView:controlView];
-        return YES;
-        
+        return menu;
     } else {
-        return [super trackMouse:theEvent inRect:cellFrame ofView:controlView untilMouseUp:flag];
+        return [super menuForEvent:event inRect:cellFrame ofView:view];
     }
 }
 
@@ -163,7 +180,7 @@
         NSRectFillList(borderRects, borderRectCount);
     }
     
-    if (self.menu && self.showsMenu) {
+    if (self.showsMenu) {
         [[LITabCell popupImage] drawInRect:[self popupRectWithFrame:cellFrame] fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
     }
 }
