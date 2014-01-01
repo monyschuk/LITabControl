@@ -322,21 +322,12 @@ static char LIScrollViewObservationContext;
                                                                         toItem:tabView attribute:NSLayoutAttributeBottom
                                                                     multiplier:1 constant:0]];                                  // CONSTANT
     
-
-    // NOTE:
-    //
-    // Hinkiness alert!
-    //
-    // This code used to assign a copy of the tab's cell to the
-    // dragging button, which caused, for reasons not fully understood,
-    // the dragging button to draw its text somewhat offset from text
-    // drawn in regular cells.
-    //
-    // The code now assigns the dragged tab's cell to the dragging
-    // button. A side effect of this is that on edits, the regular button
-    // needs a setNeedsDisplay: after setting its title value.
     
-    draggingTab.cell = tab.cell;
+    draggingTab.cell = [tab.cell copy];
+    
+    // the presence of a menu affects the vertical offset of our title
+    if ([tab.cell menu] != nil) [draggingTab.cell setMenu:[[NSMenu alloc] init]];
+
 
     [tabView addSubview:draggingTab];
     [tabView addConstraints:draggingConstraints];
@@ -619,6 +610,8 @@ static char LIScrollViewObservationContext;
         self.editingField.backgroundColor = cell.backgroundColor;
         self.editingField.focusRingType = NSFocusRingTypeNone;
 
+        self.editingField.textColor = [[NSColor darkGrayColor] blendedColorWithFraction:0.5 ofColor:[NSColor blackColor]];
+
         NSTextFieldCell *textFieldCell = self.editingField.cell;
         
         [textFieldCell setBordered:NO];
@@ -643,7 +636,6 @@ static char LIScrollViewObservationContext;
 
     if (title.length > 0) {
         [button setTitle:title];
-        [button setNeedsDisplay:YES]; // fix required for tab dragging...
         
         [self.dataSource tabControl:self setTitle:title forItem:[button.cell representedObject]];
     }
