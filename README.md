@@ -41,6 +41,8 @@ RECENT CHANGES
   * Fixed vertical text offset in dragged tabs.
 * 12/29/13
   * Fixed flicker during tab reordering, and bug in reordering first and last tabs.
+* 12/30/13
+  * Replaced static tab menus with dynamic menus, as per original intention 
 
 LICENSE & NOTES
 ---------------
