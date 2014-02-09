@@ -32,6 +32,9 @@
 
 @end
 
+@protocol LITabDelegate <NSControlTextEditingDelegate>
+@end
+
 extern NSString *LITabControlSelectionDidChangeNotification;
 
 @interface LITabControl : NSControl
@@ -45,8 +48,9 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 @property(nonatomic) CGFloat minTabWidth, maxTabWidth;
 
 #pragma mark -
-#pragma mark Data Source
+#pragma mark Delegate & Data Source
 
+@property(nonatomic, weak) id <LITabDelegate> delegate;
 @property(nonatomic, weak) id <LITabDataSource> dataSource;
 
 - (void)reloadData;
@@ -66,5 +70,10 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 #pragma mark Editing
 
 - (void)editItem:(id)item;
+
+#pragma mark -
+#pragma mark Tab Buttons
+
+- (NSButton *)tabButtonWithItem:(id)item;
 
 @end

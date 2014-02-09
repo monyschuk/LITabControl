@@ -23,8 +23,6 @@
 
 @property(nonatomic, strong) NSTextField    *editingField;
 
-- (NSButton *)existingTabWithItem:(id)item;
-
 @end
 
 @implementation LITabControl
@@ -88,6 +86,7 @@
                                       relatedBy:NSLayoutRelationEqual
                                          toItem:nil attribute:NSLayoutAttributeNotAnAttribute
                                      multiplier:1 constant:48]];
+        
         [_scrollLeftButton addConstraint:
          [NSLayoutConstraint constraintWithItem:_scrollLeftButton attribute:NSLayoutAttributeWidth
                                       relatedBy:NSLayoutRelationEqual
@@ -113,7 +112,10 @@
 }
 
 - (void)updateButtons {
-    [_addButton setEnabled:(self.addAction != NULL)];
+    BOOL showAddButton = self.addAction != NULL;
+    
+    [_addButton setHidden:(showAddButton) ? NO : YES];
+    [_addButton.constraints.lastObject setConstant:(showAddButton) ? 48 : 0];
 
     NSClipView *contentView = self.scrollView.contentView;
 
@@ -219,6 +221,8 @@ static char LIScrollViewObservationContext;
 - (void)setAddAction:(SEL)addAction {
     if (_addAction != addAction) {
         _addAction = addAction;
+        
+        [self updateButtons];
     }
 }
 
@@ -584,7 +588,7 @@ static char LIScrollViewObservationContext;
     return tab;
 }
 
-- (NSButton *)existingTabWithItem:(id)item {
+- (NSButton *)tabButtonWithItem:(id)item {
     for (NSButton *button in [self.scrollView.documentView subviews]) {
         if (button != self.draggingTab) {
             if ([[[button cell] representedObject] isEqual:item]) {
@@ -600,7 +604,7 @@ static char LIScrollViewObservationContext;
 
 - (NSButton *)trackedButtonWithEvent:(NSEvent *)theEvent {
     id item = theEvent.trackingArea.userInfo[@"item"];
-    return (item != nil) ? [self existingTabWithItem:item] : nil;
+    return (item != nil) ? [self tabButtonWithItem:item] : nil;
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
@@ -614,7 +618,7 @@ static char LIScrollViewObservationContext;
 #pragma mark Editing
 
 - (void)editItem:(id)item {
-    NSButton *button = [self existingTabWithItem:item];
+    NSButton *button = [self tabButtonWithItem:item];
     
     // end existing editing, if any...
     if (self.editingField != nil) {
@@ -656,6 +660,72 @@ static char LIScrollViewObservationContext;
     }
 }
 
+#pragma mark -
+#pragma mark NSTextFieldDelegate
+
+- (BOOL)control:(NSControl *)control textShouldBeginEditing:(NSText *)fieldEditor {
+    BOOL ret = YES;
+    if ([_delegate respondsToSelector:_cmd]) {
+        ret = [_delegate control:self textShouldBeginEditing:fieldEditor];
+    }
+    return ret;
+}
+
+- (BOOL)control:(NSControl *)control textShouldEndEditing:(NSText *)fieldEditor {
+    BOOL ret = YES;
+    if ([_delegate respondsToSelector:_cmd]) {
+        ret = [_delegate control:self textShouldEndEditing:fieldEditor];
+    }
+    return ret;
+}
+
+- (BOOL)control:(NSControl *)control didFailToFormatString:(NSString *)string errorDescription:(NSString *)error {
+    BOOL ret = YES;
+    if ([_delegate respondsToSelector:_cmd]) {
+        ret = [_delegate control:self didFailToFormatString:string errorDescription:error];
+    }
+    return ret;
+}
+
+- (void)control:(NSControl *)control didFailToValidatePartialString:(NSString *)string errorDescription:(NSString *)error {
+    if ([_delegate respondsToSelector:_cmd]) {
+        [_delegate control:self didFailToValidatePartialString:string errorDescription:error];
+    }
+}
+
+- (BOOL)control:(NSControl *)control isValidObject:(id)obj {
+    BOOL ret = YES;
+    if ([_delegate respondsToSelector:_cmd]) {
+        ret = [_delegate control:self isValidObject:obj];
+    }
+    return ret;
+}
+
+- (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector {
+    BOOL ret = YES;
+    if ([_delegate respondsToSelector:_cmd]) {
+        ret = [_delegate control:self textView:textView doCommandBySelector:commandSelector];
+    }
+    return ret;
+}
+
+- (NSArray *)control:(NSControl *)control textView:(NSTextView *)textView completions:(NSArray *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
+    NSArray *ret = nil;
+    if ([_delegate respondsToSelector:_cmd]) {
+        
+    }
+    return ret;
+}
+
+
+- (void)controlTextDidChange:(NSNotification *)obj {
+    [[NSNotificationCenter defaultCenter] postNotificationName:obj.name object:self userInfo:obj.userInfo];
+}
+
+- (void)controlTextDidBeginEditing:(NSNotification *)obj {
+    [[NSNotificationCenter defaultCenter] postNotificationName:obj.name object:self userInfo:obj.userInfo];
+}
+
 - (void)controlTextDidEndEditing:(NSNotification *)obj {
     NSString *title = self.editingField.stringValue;
     NSButton *button = (id)[self.editingField superview];
@@ -669,6 +739,8 @@ static char LIScrollViewObservationContext;
         
         [self.dataSource tabControl:self setTitle:title forItem:[button.cell representedObject]];
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:obj.name object:self userInfo:obj.userInfo];
 }
 
 #pragma mark -
