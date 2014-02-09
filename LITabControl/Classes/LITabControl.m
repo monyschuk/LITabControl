@@ -702,7 +702,7 @@ static char LIScrollViewObservationContext;
 }
 
 - (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector {
-    BOOL ret = YES;
+    BOOL ret = NO;
     if ([_delegate respondsToSelector:_cmd]) {
         ret = [_delegate control:self textView:textView doCommandBySelector:commandSelector];
     }
@@ -716,7 +716,6 @@ static char LIScrollViewObservationContext;
     }
     return ret;
 }
-
 
 - (void)controlTextDidChange:(NSNotification *)obj {
     [[NSNotificationCenter defaultCenter] postNotificationName:obj.name object:self userInfo:obj.userInfo];
