@@ -570,7 +570,7 @@ static char LIScrollViewObservationContext;
     tabCell.imagePosition   = NSNoImage;
     tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
     
-    NSButton    *tab        = [self viewWithClass:[LITabButton class]];
+    NSButton    *tab        = [self viewWithClass:[self.class tabButtonClass]];
 
     [tab setCell:tabCell];
     
@@ -586,6 +586,11 @@ static char LIScrollViewObservationContext;
                                    multiplier:1.0 constant:self.maxTabWidth]]];
     
     return tab;
+}
+
+
++ (Class)tabButtonClass {
+    return [LITabButton class];
 }
 
 - (NSButton *)tabButtonWithItem:(id)item {

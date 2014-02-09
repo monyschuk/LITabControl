@@ -23,7 +23,7 @@
         _borderColor = DF_BORDER_COLOR;
         _backgroundColor = DF_BACKGROUND_COLOR;
         
-        [self setBordered:NO];
+        [self setBordered:YES];        
         [self setHighlightsBy:NSNoCellMask];
         [self setLineBreakMode:NSLineBreakByTruncatingTail];
     }
@@ -105,7 +105,7 @@
         NSRect popupRect = [self popupRectWithFrame:cellFrame];
         CGFloat titleRectInset = ceilf(NSMaxX(cellFrame) - NSMinX(popupRect));
         
-        titleRect = NSOffsetRect(titleRect, 0, -2);
+        titleRect = NSOffsetRect(titleRect, 0, -1);
         titleRect = NSInsetRect(titleRect, titleRectInset, 0);
     }
     return titleRect;
@@ -164,24 +164,24 @@
     }
 }
 
-- (NSAttributedString *)attributedTitle {
-    NSMutableAttributedString *attributedTitle = [[super attributedTitle] mutableCopy];
-    [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
-    return attributedTitle;
-}
+#pragma mark -
+#pragma mark Drawing
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
-    [self.backgroundColor set];
-    NSRectFill(cellFrame);
+    [super drawWithFrame:cellFrame inView:controlView];
     
     if (self.image && self.imagePosition != NSNoImage) {
         [self drawImage:[self.image imageWithTint:self.isHighlighted ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]] withFrame:cellFrame inView:controlView];
     }
     
-    if (self.title.length && self.imagePosition != NSImageOnly) {
-        NSRect titleRect = [self titleRectForBounds:cellFrame];
-        [self.attributedTitle drawInRect:titleRect];
+    if (self.showsMenu) {
+        [[LITabCell popupImage] drawInRect:[self popupRectWithFrame:cellFrame] fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
     }
+}
+
+- (void)drawBezelWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
+    [self.backgroundColor set];
+    NSRectFill(cellFrame);
     
     NSRect *borderRects;
     NSInteger borderRectCount;
@@ -189,10 +189,18 @@
         [self.borderColor set];
         NSRectFillList(borderRects, borderRectCount);
     }
-    
-    if (self.showsMenu) {
-        [[LITabCell popupImage] drawInRect:[self popupRectWithFrame:cellFrame] fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
-    }
+}
+
+- (NSRect)drawTitle:(NSAttributedString*)title withFrame:(NSRect)frame inView:(NSView*)controlView {
+    NSRect titleRect = [self titleRectForBounds:frame];
+    [title drawInRect:titleRect];
+    return titleRect;
+}
+
+- (NSAttributedString *)attributedTitle {
+    NSMutableAttributedString *attributedTitle = [[super attributedTitle] mutableCopy];
+    [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
+    return attributedTitle;
 }
 
 @end
