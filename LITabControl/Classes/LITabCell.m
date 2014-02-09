@@ -23,7 +23,9 @@
         _borderColor = DF_BORDER_COLOR;
         _backgroundColor = DF_BACKGROUND_COLOR;
         
-        [self setBordered:YES];        
+        [self setBordered:YES];
+        [self setBackgroundStyle:NSBackgroundStyleLight];
+        
         [self setHighlightsBy:NSNoCellMask];
         [self setLineBreakMode:NSLineBreakByTruncatingTail];
     }

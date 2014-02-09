@@ -43,7 +43,10 @@ RECENT CHANGES
   * Fixed flicker during tab reordering, and bug in reordering first and last tabs.
 * 12/30/13
   * Replaced static tab menus with dynamic menus, as per original intention 
-
+* 02/09/14
+  * Numerous changes to facilitate subclassing
+  * Reordered tab views to render front-to-back left to right rather than right to left (eg. tabScroller.subviews.lastObject is leftmost while tabScroller.subviews.firstObject is rightmost). This change in ordering allows subclasses to partially occlude tabs in a visually sensible way.
+  
 LICENSE & NOTES
 ---------------
 

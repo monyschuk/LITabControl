@@ -75,6 +75,8 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 #pragma mark Tab Buttons
 
 + (Class)tabButtonClass;
+
+- (NSArray *)tabButtons;
 - (NSButton *)tabButtonWithItem:(id)item;
 
 @end

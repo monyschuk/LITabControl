@@ -247,7 +247,7 @@ static char LIScrollViewObservationContext;
     NSView *tabView = self.scrollView.documentView;
     NSRect  visibleRect = tabView.visibleRect;
     
-    for (NSButton *button in [[tabView subviews] reverseObjectEnumerator]) {
+    for (NSButton *button in tabView.subviews) {
         if (NSMinX(button.frame) < NSMinX(visibleRect)) {
             return button;
         }
@@ -291,15 +291,21 @@ static char LIScrollViewObservationContext;
     NSEvent *currentEvent = [NSApp currentEvent];
     
     if (currentEvent.clickCount > 1) {
+        // edit on double click...
         [self editItem:[[sender cell] representedObject]];
         
     } else if ([self.dataSource tabControl:self canReorderItem:[[sender cell] representedObject]]) {
-        [self reorderTab:sender withEvent:currentEvent];
+        // watch for a drag event and initiate dragging if a drag is found...
+        if ([self.window nextEventMatchingMask:NSLeftMouseUpMask|NSLeftMouseDraggedMask untilDate:[NSDate distantFuture] inMode:NSEventTrackingRunLoopMode dequeue:NO].type == NSLeftMouseDragged) {
+            [self reorderTab:sender withEvent:currentEvent];
+            return; // no autoscroll
+        }
     }
 
+    // scroll to visible if either editing or selecting...
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
         [context setAllowsImplicitAnimation:YES];
-        [selectedButton scrollRectToVisible:[selectedButton bounds]];
+        [selectedButton.superview scrollRectToVisible:selectedButton.frame];
     } completionHandler:nil];
     
     [self invalidateRestorableState];
@@ -314,7 +320,7 @@ static char LIScrollViewObservationContext;
     // its position over the course of the dragging operation
     
     NSView          *tabView        = self.scrollView.documentView;
-    NSMutableArray  *orderedTabs    = [[NSMutableArray alloc] initWithArray:tabView.subviews];
+    NSMutableArray  *orderedTabs    = [[NSMutableArray alloc] initWithArray:tabView.subviews.reverseObjectEnumerator.allObjects];
     
     // create a dragging tab used to represent our drag,
     // and constraint its position and its size; the first
@@ -343,6 +349,9 @@ static char LIScrollViewObservationContext;
     
     
     draggingTab.cell = [tab.cell copy];
+    
+    // cell subclasses may alter drawing based on represented object
+    [draggingTab.cell setRepresentedObject:[tab.cell representedObject]];
     
     // the presence of a menu affects the vertical offset of our title
     if ([tab.cell menu] != nil) [draggingTab.cell setMenu:[[NSMenu alloc] init]];
@@ -494,7 +503,7 @@ static char LIScrollViewObservationContext;
         [newTabs addObject:button];
     }
 
-    [tabView setSubviews:newTabs];
+    [tabView setSubviews:newTabs.reverseObjectEnumerator.allObjects];
     [self layoutTabs:newTabs inView:tabView];
     
     self.items = newItems;
@@ -504,10 +513,27 @@ static char LIScrollViewObservationContext;
         NSClipView *clipView = self.scrollView.contentView;
         NSView *documentView = self.scrollView.documentView;
         
+        // document content is as tall as our scrolling area, and at least as wide...
+        
         [clipView addConstraints:
-         [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[documentView]|" options:0 metrics:nil views:@{@"documentView": documentView}]];
+         [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[documentView]|"
+                                                 options:0
+                                                 metrics:nil
+                                                   views:@{@"documentView": documentView}]];
+
         [clipView addConstraints:
-         [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[documentView]|" options:0 metrics:nil views:@{@"documentView": documentView}]];
+         [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[documentView]"
+                                                 options:0
+                                                 metrics:nil
+                                                   views:@{@"documentView": documentView}]];
+
+        // here's the 'at least as wide' constraint...
+        
+        [clipView addConstraint:
+         [NSLayoutConstraint constraintWithItem:documentView attribute:NSLayoutAttributeRight
+                                      relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                         toItem:clipView attribute:NSLayoutAttributeRight
+                                     multiplier:1 constant:0]];
     }
     
     [self updateButtons];
@@ -589,8 +615,22 @@ static char LIScrollViewObservationContext;
 }
 
 
+#pragma mark -
+#pragma mark Tab Buttons
+
 + (Class)tabButtonClass {
     return [LITabButton class];
+}
+
+- (NSArray *)tabButtons {
+    NSMutableArray *buttons = @[].mutableCopy;
+    
+    for (NSButton *button in [self.scrollView.documentView subviews]) {
+        if (button != self.draggingTab) {
+            [buttons addObject:button];
+        }
+    }
+    return buttons;
 }
 
 - (NSButton *)tabButtonWithItem:(id)item {
