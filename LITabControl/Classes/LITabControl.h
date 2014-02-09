@@ -27,6 +27,9 @@
 @optional
 - (void)tabControlDidChangeSelection:(NSNotification *)notification;
 
+- (BOOL)tabControl:(LITabControl *)tabControl canEditItem:(id)item;
+- (BOOL)tabControl:(LITabControl *)tabControl canSelectItem:(id)item;
+
 @end
 
 extern NSString *LITabControlSelectionDidChangeNotification;

@@ -545,6 +545,11 @@ static char LIScrollViewObservationContext;
 - (NSButton *)tabWithItem:(id)item {
     NSButton  *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
     [[button cell] setRepresentedObject:item];
+
+    if ([self.dataSource respondsToSelector:@selector(tabControl:canSelectItem:)]) {
+        [[button cell] setSelectable:[self.dataSource tabControl:self canSelectItem:item]];
+    }
+
     return button;
 }
 
@@ -620,6 +625,10 @@ static char LIScrollViewObservationContext;
     [self layoutSubtreeIfNeeded];
     
     if (button != nil) {
+        if ([self.dataSource respondsToSelector:@selector(tabControl:canEditItem:)] && [self.dataSource tabControl:self canEditItem:item] == NO) {
+            return;
+        }
+        
         LITabCell *cell = button.cell;
         NSRect titleRect = [cell titleRectForBounds:button.bounds];
         
