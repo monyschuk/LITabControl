@@ -192,10 +192,25 @@ static char LIScrollViewObservationContext;
 
 - (void)setBorderColor:(NSColor *)borderColor {
     [self.cell setBorderColor:borderColor];
-    
+    for (id subview in self.subviews) {
+        if ([subview respondsToSelector:@selector(cell)]) {
+            id cell = [subview cell];
+            if ([cell respondsToSelector:@selector(setBorderColor:)]) {
+                [cell setBorderColor:borderColor];
+            }
+        }
+    }
 }
 - (void)setBackgroundColor:(NSColor *)backgroundColor {
     [self.cell setBackgroundColor:backgroundColor];
+    for (id subview in self.subviews) {
+        if ([subview respondsToSelector:@selector(cell)]) {
+            id cell = [subview cell];
+            if ([cell respondsToSelector:@selector(setBackgroundColor:)]) {
+                [cell setBackgroundColor:backgroundColor];
+            }
+        }
+    }
 }
 
 #pragma mark -
@@ -306,7 +321,7 @@ static char LIScrollViewObservationContext;
     NSPoint   dragPoint             = [tabView convertPoint:event.locationInWindow fromView:nil];
     
     
-    NSButton *draggingTab           = [self tabWithTitle:tab.title];
+    NSButton *draggingTab           = [self tabWithItem:[tab.cell representedObject]];
     
     NSArray  *draggingConstraints   = @[[NSLayoutConstraint constraintWithItem:draggingTab attribute:NSLayoutAttributeLeading
                                                                      relatedBy:NSLayoutRelationEqual
@@ -457,10 +472,8 @@ static char LIScrollViewObservationContext;
     NSMutableArray *newTabs = [[NSMutableArray alloc] init];
     
     for (id item in newItems) {
-        NSButton *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
+        NSButton  *button     = [self tabWithItem:item];
         LITabCell *buttonCell = [button cell];
-        
-        [buttonCell setRepresentedObject:item];
         
         // NOTE: menus are dynamic, but we indicate their presence by associating a menu
         // with the button cell...
@@ -488,7 +501,7 @@ static char LIScrollViewObservationContext;
         NSView *documentView = self.scrollView.documentView;
         
         [clipView addConstraints:
-         [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[documentView]" options:0 metrics:nil views:@{@"documentView": documentView}]];
+         [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[documentView]|" options:0 metrics:nil views:@{@"documentView": documentView}]];
         [clipView addConstraints:
          [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[documentView]|" options:0 metrics:nil views:@{@"documentView": documentView}]];
     }
@@ -518,18 +531,27 @@ static char LIScrollViewObservationContext;
     }
     
     if (prev) {
-        [tabView addConstraint:
-         [NSLayoutConstraint constraintWithItem:prev attribute:NSLayoutAttributeTrailing
-                                      relatedBy:NSLayoutRelationEqual
-                                         toItem:tabView attribute:NSLayoutAttributeTrailing
-                                     multiplier:1 constant:0]];
+        NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:prev attribute:NSLayoutAttributeTrailing
+                                                                             relatedBy:NSLayoutRelationLessThanOrEqual
+                                                                                toItem:tabView attribute:NSLayoutAttributeTrailing
+                                                                             multiplier:1 constant:0];
+        [trailingConstraint setPriority:NSLayoutPriorityWindowSizeStayPut];
+        [tabView addConstraint:trailingConstraint];
     }
     
     [tabView layoutSubtreeIfNeeded];
 }
 
+- (NSButton *)tabWithItem:(id)item {
+    NSButton  *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
+    [[button cell] setRepresentedObject:item];
+    return button;
+}
+
 - (NSButton *)tabWithTitle:(NSString *)title {
-    LITabCell   *tabCell    = [[LITabCell alloc] initTextCell:title];
+    LITabCell   *tabCell    = [self.cell copy];
+    
+    tabCell.title           = title;
     
     tabCell.target          = self;
     tabCell.action          = @selector(selectTab:);
@@ -538,9 +560,8 @@ static char LIScrollViewObservationContext;
 
     tabCell.imagePosition   = NSNoImage;
     tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
-    tabCell.font            = [NSFont fontWithName:@"HelveticaNeue-Medium" size:13];
     
-    NSButton    *tab        = [self viewWithClass:[NSButton class]];
+    NSButton    *tab        = [self viewWithClass:[LITabButton class]];
 
     [tab setCell:tabCell];
     

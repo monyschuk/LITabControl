@@ -24,7 +24,10 @@ typedef enum {
 @property(nonatomic, copy) NSColor *borderColor;
 @property(nonatomic, copy) NSColor *backgroundColor;
 
+@end
 
+@interface LITabButton : NSButton
++ (Class)cellClass;
 @end
 
 extern BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount);

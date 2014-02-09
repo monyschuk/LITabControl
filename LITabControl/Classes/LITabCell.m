@@ -82,6 +82,13 @@
     return ret;
 }
 
+- (NSSize)cellSizeForBounds:(NSRect)aRect {
+    NSSize titleSize = [[self attributedTitle] size];
+    NSSize popupSize = ([self menu] == nil) ? NSZeroSize : [[LITabCell popupImage] size];
+
+    return NSMakeSize(titleSize.width + (popupSize.width * 2) + 36, MAX(titleSize.height, popupSize.height));
+}
+
 - (NSRect)popupRectWithFrame:(NSRect)cellFrame {
     NSRect popupRect = NSZeroRect;
     popupRect.size = [[LITabCell popupImage] size];
@@ -185,6 +192,12 @@
     }
 }
 
+@end
+
+@implementation LITabButton
++ (Class)cellClass {
+    return [LITabCell class];
+}
 @end
 
 BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount) {
