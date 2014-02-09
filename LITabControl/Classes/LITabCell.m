@@ -164,6 +164,12 @@
     }
 }
 
+- (NSAttributedString *)attributedTitle {
+    NSMutableAttributedString *attributedTitle = [[super attributedTitle] mutableCopy];
+    [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
+    return attributedTitle;
+}
+
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     [self.backgroundColor set];
     NSRectFill(cellFrame);
@@ -174,10 +180,7 @@
     
     if (self.title.length && self.imagePosition != NSImageOnly) {
         NSRect titleRect = [self titleRectForBounds:cellFrame];
-        
-        NSMutableAttributedString *attributedTitle = self.attributedTitle.mutableCopy;
-        [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
-        [attributedTitle drawInRect:titleRect];
+        [self.attributedTitle drawInRect:titleRect];
     }
     
     NSRect *borderRects;
