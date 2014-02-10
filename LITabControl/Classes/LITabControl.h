@@ -81,4 +81,9 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 - (NSArray *)tabButtons;
 - (NSButton *)tabButtonWithItem:(id)item;
 
+#pragma mark -
+#pragma mark Reordering
+
+@property(nonatomic) BOOL notifiesOnPartialReorder;
+
 @end

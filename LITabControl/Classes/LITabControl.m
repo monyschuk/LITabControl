@@ -362,7 +362,8 @@ static char LIScrollViewObservationContext;
     
     [tab setHidden:YES];
     
-    BOOL dragged = NO, reordered = NO;
+    CGPoint prevPoint = dragPoint;
+    BOOL    dragged = NO, reordered = NO;
     
     while (1) {
         event = [self.window nextEventMatchingMask:NSLeftMouseDraggedMask|NSLeftMouseUpMask];
@@ -382,10 +383,15 @@ static char LIScrollViewObservationContext;
         
         CGFloat nextX = tabX + (nextPoint.x - dragPoint.x);
         
+        BOOL    movingLeft = (nextPoint.x < prevPoint.x);
+        BOOL    movingRight = (nextPoint.x > prevPoint.x);
+        
+        prevPoint = nextPoint;
+        
         [draggingConstraints[0] setConstant:nextX];
 
         // test for reordering...
-        if (NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != orderedTabs.firstObject) {
+        if (movingLeft && NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != orderedTabs.firstObject) {
             // shift left
             NSUInteger index = [orderedTabs indexOfObject:tab];
             [orderedTabs exchangeObjectAtIndex:index withObjectAtIndex:index - 1];
@@ -393,9 +399,13 @@ static char LIScrollViewObservationContext;
             [self layoutTabs:orderedTabs inView:tabView];
             [tabView addConstraints:draggingConstraints];
 
-            reordered = YES;
+            if (self.notifiesOnPartialReorder) {
+                [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
+            }
             
-        } else if (NSMidX(draggingTab.frame) > NSMaxX(tab.frame) && tab != orderedTabs.lastObject) {
+            reordered = YES;
+
+        } else if (movingRight && NSMidX(draggingTab.frame) > NSMaxX(tab.frame) && tab != orderedTabs.lastObject) {
             // shift right
             NSUInteger index = [orderedTabs indexOfObject:tab];
             [orderedTabs exchangeObjectAtIndex:index+1 withObjectAtIndex:index];
@@ -403,6 +413,10 @@ static char LIScrollViewObservationContext;
             [self layoutTabs:orderedTabs inView:tabView];
             [tabView addConstraints:draggingConstraints];
 
+            if (self.notifiesOnPartialReorder) {
+                [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
+            }
+            
             reordered = YES;
         }
         
@@ -418,11 +432,11 @@ static char LIScrollViewObservationContext;
     [tab.cell setControlView:tab];
     
     if (reordered) {
-        NSArray *orderedItems = [orderedTabs valueForKeyPath:@"cell.representedObject"];
-        [self.dataSource tabControlDidReorderItems:self orderedItems:orderedItems];
-        [self reloadData]; // mildly expensive but ensures state...
+        if (!self.notifiesOnPartialReorder) {
+            [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
+        }
         
-        
+        [self reloadData];
         [self setSelectedItem:[tab.cell representedObject]];
     }
 }
