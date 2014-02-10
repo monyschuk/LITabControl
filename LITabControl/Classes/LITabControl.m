@@ -572,18 +572,22 @@ static char LIScrollViewObservationContext;
     [tabView layoutSubtreeIfNeeded];
 }
 
-- (NSButton *)tabWithItem:(id)item {
-    NSButton  *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
+- (LITabButton *)tabWithItem:(id)item {
+    LITabButton  *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
     [[button cell] setRepresentedObject:item];
 
     if ([self.dataSource respondsToSelector:@selector(tabControl:canSelectItem:)]) {
         [[button cell] setSelectable:[self.dataSource tabControl:self canSelectItem:item]];
     }
 
+    if ([self.dataSource respondsToSelector:@selector(tabControl:willDisplayButton:forItem:)]) {
+        [self.dataSource tabControl:self willDisplayButton:button forItem:item];
+    }
+    
     return button;
 }
 
-- (NSButton *)tabWithTitle:(NSString *)title {
+- (LITabButton *)tabWithTitle:(NSString *)title {
     LITabCell   *tabCell    = [self.cell copy];
     
     tabCell.title           = title;
@@ -596,7 +600,7 @@ static char LIScrollViewObservationContext;
     tabCell.imagePosition   = NSNoImage;
     tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
     
-    NSButton    *tab        = [self viewWithClass:[self.class tabButtonClass]];
+    LITabButton *tab        = [self viewWithClass:[self.class tabButtonClass]];
 
     [tab setCell:tabCell];
     

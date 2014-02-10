@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Mark Onyschuk. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "LITabCell.h"
 
 @class LITabControl;
 
@@ -29,6 +29,8 @@
 
 - (BOOL)tabControl:(LITabControl *)tabControl canEditItem:(id)item;
 - (BOOL)tabControl:(LITabControl *)tabControl canSelectItem:(id)item;
+
+- (void)tabControl:(LITabControl *)tabControl willDisplayButton:(LITabButton *)button forItem:(id)item;
 
 @end
 
