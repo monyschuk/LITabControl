@@ -12,6 +12,7 @@
 #import "NSImage+LITabControl.h"
 
 #define DF_BORDER_COLOR     [NSColor lightGrayColor]
+#define DF_TITLE_COLOR      [NSColor darkGrayColor]
 #define DF_HIGHLIGHT_COLOR  [NSColor colorWithCalibratedRed:0.119 green:0.399 blue:0.964 alpha:1.000]
 #define DF_BACKGROUND_COLOR [NSColor colorWithCalibratedRed:0.854 green:0.858 blue:0.873 alpha:1.000]
 
@@ -22,6 +23,9 @@
 
         _borderColor = DF_BORDER_COLOR;
         _backgroundColor = DF_BACKGROUND_COLOR;
+        
+        _titleColor = DF_TITLE_COLOR;
+        _titleHighlightColor = DF_HIGHLIGHT_COLOR;
         
         [self setBordered:YES];
         [self setBackgroundStyle:NSBackgroundStyleLight];
@@ -39,6 +43,9 @@
     copy->_borderColor = [_borderColor copyWithZone:zone];
     copy->_backgroundColor = [_backgroundColor copyWithZone:zone];
 
+    copy->_titleColor = [_titleColor copyWithZone:zone];
+    copy->_titleHighlightColor = [_titleHighlightColor copyWithZone:zone];
+    
     copy->_showsMenu = _showsMenu;
     copy->_isShowingMenu = _isShowingMenu;
     
@@ -201,7 +208,7 @@
 
 - (NSAttributedString *)attributedTitle {
     NSMutableAttributedString *attributedTitle = [[super attributedTitle] mutableCopy];
-    [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]) } range:NSMakeRange(0, attributedTitle.length)];
+    [attributedTitle addAttributes:@{ NSForegroundColorAttributeName : (self.state ? self.titleHighlightColor : self.titleColor) } range:NSMakeRange(0, attributedTitle.length)];
     return attributedTitle;
 }
 

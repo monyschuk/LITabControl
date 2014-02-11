@@ -47,6 +47,9 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 @property(nonatomic, copy) NSColor *borderColor;
 @property(nonatomic, copy) NSColor *backgroundColor;
 
+@property(nonatomic, copy) NSColor *titleColor;
+@property(nonatomic, copy) NSColor *titleHighlightColor;
+
 @property(nonatomic) CGFloat minTabWidth, maxTabWidth;
 
 #pragma mark -

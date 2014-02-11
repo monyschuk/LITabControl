@@ -24,6 +24,9 @@ typedef enum {
 @property(nonatomic, copy) NSColor *borderColor;
 @property(nonatomic, copy) NSColor *backgroundColor;
 
+@property(nonatomic, copy) NSColor *titleColor;
+@property(nonatomic, copy) NSColor *titleHighlightColor;
+
 @end
 
 @interface LITabButton : NSButton

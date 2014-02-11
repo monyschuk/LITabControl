@@ -214,6 +214,28 @@ static char LIScrollViewObservationContext;
         }
     }
 }
+- (void)setTitleColor:(NSColor *)titleColor {
+    [self.cell setTitleColor:titleColor];
+    for (id subview in self.subviews) {
+        if ([subview respondsToSelector:@selector(cell)]) {
+            id cell = [subview cell];
+            if ([cell respondsToSelector:@selector(setTitleColor:)]) {
+                [cell setTitleColor:titleColor];
+            }
+        }
+    }
+}
+- (void)setTitleHighlightColor:(NSColor *)titleHighlightColor {
+    [self.cell setTitleHighlightColor:titleHighlightColor];
+    for (id subview in self.subviews) {
+        if ([subview respondsToSelector:@selector(cell)]) {
+            id cell = [subview cell];
+            if ([cell respondsToSelector:@selector(setTitleHighlightColor:)]) {
+                [cell setTitleHighlightColor:titleHighlightColor];
+            }
+        }
+    }
+}
 
 #pragma mark -
 #pragma mark Actions
