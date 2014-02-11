@@ -435,8 +435,9 @@ static char LIScrollViewObservationContext;
         if (!self.notifiesOnPartialReorder) {
             [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
         }
-        
+
         [self reloadData];
+        
         [self setSelectedItem:[tab.cell representedObject]];
     }
 }
