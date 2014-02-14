@@ -11,10 +11,16 @@
 
 #import "NSImage+LITabControl.h"
 
+#define INCH                72.0f
+
 #define DF_BORDER_COLOR     [NSColor lightGrayColor]
 #define DF_TITLE_COLOR      [NSColor darkGrayColor]
 #define DF_HIGHLIGHT_COLOR  [NSColor colorWithCalibratedRed:0.119 green:0.399 blue:0.964 alpha:1.000]
 #define DF_BACKGROUND_COLOR [NSColor colorWithCalibratedRed:0.854 green:0.858 blue:0.873 alpha:1.000]
+
+@interface LITabButton (Private)
+- (void)constrainSizeWithCell:(LITabCell *)cell;
+@end
 
 @implementation LITabCell 
 
@@ -27,6 +33,9 @@
         _titleColor = DF_TITLE_COLOR;
         _titleHighlightColor = DF_HIGHLIGHT_COLOR;
         
+        _minWidth = INCH * 2.75;
+        _maxWidth = INCH * 2.75;
+        
         [self setBordered:YES];
         [self setBackgroundStyle:NSBackgroundStyleLight];
         
@@ -38,6 +47,9 @@
 
 - (id)copyWithZone:(NSZone *)zone {
     LITabCell *copy = [super copyWithZone:zone];
+
+    copy->_minWidth = _minWidth;
+    copy->_maxWidth = _maxWidth;
     
     copy->_borderMask = _borderMask;
     copy->_borderColor = [_borderColor copyWithZone:zone];
@@ -83,6 +95,26 @@
     }
 }
 
+- (void)setMinWidth:(CGFloat)minWidth {
+    if (_minWidth != minWidth) {
+        _minWidth = minWidth;
+        
+        if ([self.controlView respondsToSelector:@selector(constrainSizeWithCell:)]) {
+            [(id)self.controlView constrainSizeWithCell:self];
+        }
+    }
+}
+
+- (void)setMaxWidth:(CGFloat)maxWidth {
+    if (_maxWidth != maxWidth) {
+        _maxWidth = maxWidth;
+        
+        if ([self.controlView respondsToSelector:@selector(constrainSizeWithCell:)]) {
+            [(id)self.controlView constrainSizeWithCell:self];
+        }
+    }
+}
+
 + (NSImage *)popupImage {
     static NSImage *ret = nil;
     if (ret == nil) {
@@ -118,6 +150,10 @@
         titleRect = NSInsetRect(titleRect, titleRectInset, 0);
     }
     return titleRect;
+}
+
+- (NSRect)editingRectForBounds:(NSRect)rect {
+    return [self titleRectForBounds:NSOffsetRect(rect, 0, -1)];
 }
 
 - (LITabControl *)enclosingTabControlInView:(NSView *)controlView {
@@ -214,10 +250,115 @@
 
 @end
 
-@implementation LITabButton
+@implementation LITabButton {
+    NSLayoutConstraint *_minWidthConstraint, *_maxWidthConstraint;
+}
+
 + (Class)cellClass {
     return [LITabCell class];
 }
+
+- (BOOL)showsMenu {
+    return [self.cell showsMenu];
+}
+- (void)setShowsMenu:(BOOL)showsMenu {
+    [self.cell setShowsMenu:showsMenu];
+}
+
+- (BOOL)isShowingMenu {
+    return [self.cell isShowingMenu];
+}
+
+- (LIBorderMask)borderMask {
+    return [self.cell borderMask];
+}
+- (void)setBorderMask:(LIBorderMask)borderMask {
+    [self.cell setBorderMask:borderMask];
+}
+
+- (NSColor *)borderColor {
+    return [self.cell borderColor];
+}
+- (void)setBorderColor:(NSColor *)borderColor {
+    [self.cell setBorderColor:borderColor];
+}
+- (NSColor *)backgroundColor {
+    return [self.cell backgroundColor];
+}
+- (void)setBackgroundColor:(NSColor *)backgroundColor {
+    [self.cell setBackgroundColor:backgroundColor];
+}
+
+- (NSColor *)titleColor {
+    return [self.cell titleColor];
+}
+- (void)setTitleColor:(NSColor *)titleColor {
+    [self.cell setTitleColor:titleColor];
+}
+- (NSColor *)titleHighlightColor {
+    return [self.cell titleHighlightColor];
+}
+- (void)setTitleHighlightColor:(NSColor *)titleHighlightColor {
+    [self.cell setTitleHighlightColor:titleHighlightColor];
+}
+
+- (CGFloat)minWidth {
+    return [self.cell minWidth];
+}
+- (void)setMinWidth:(CGFloat)minWidth {
+    [self.cell setMinWidth:minWidth];
+}
+- (CGFloat)maxWidth {
+    return [self.cell maxWidth];
+}
+- (void)setMaxWidth:(CGFloat)maxWidth {
+    [self.cell setMaxWidth:maxWidth];
+}
+
+- (void)setCell:(NSCell *)aCell {
+    [super setCell:aCell];
+    if ([aCell isKindOfClass:[LITabCell class]]) {
+        [self constrainSizeWithCell:(id)aCell];
+    }
+}
+
+- (void)constrainSizeWithCell:(LITabCell *)cell {
+    if (_minWidthConstraint != nil) {
+        if (cell.minWidth > 0) {
+            [_minWidthConstraint setConstant:cell.minWidth];
+        } else {
+            [self removeConstraint:_minWidthConstraint];
+            _minWidthConstraint = nil;
+        }
+    } else {
+        if (cell.minWidth > 0) {
+            _minWidthConstraint = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeWidth
+                                                               relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                  toItem:nil attribute:NSLayoutAttributeNotAnAttribute
+                                                              multiplier:1 constant:cell.minWidth];
+            [self addConstraint:_minWidthConstraint];
+        }
+    }
+    
+    if (_maxWidthConstraint != nil) {
+        if (cell.maxWidth > 0) {
+            [_maxWidthConstraint setConstant:cell.maxWidth];
+        } else {
+            [self removeConstraint:_maxWidthConstraint];
+            _maxWidthConstraint = nil;
+        }
+    } else {
+        if (cell.maxWidth > 0) {
+            _maxWidthConstraint = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeWidth
+                                                               relatedBy:NSLayoutRelationLessThanOrEqual
+                                                                  toItem:nil attribute:NSLayoutAttributeNotAnAttribute
+                                                              multiplier:1 constant:cell.maxWidth];
+            [self addConstraint:_maxWidthConstraint];
+        }
+    }
+
+}
+
 @end
 
 BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount) {

@@ -11,9 +11,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#define DF_MIN_TAB_WIDTH    (72.f * 2.75)
-#define DF_MAX_TAB_WIDTH    (72.f * 3.25)
-
 @interface LITabControl() <NSTextFieldDelegate>
 
 @property(nonatomic, strong) NSArray        *items;
@@ -49,9 +46,6 @@
 - (void)configureSubviews {
     if (_scrollView == nil) {
         [self setWantsLayer:YES];
-
-        _minTabWidth = DF_MIN_TAB_WIDTH;
-        _maxTabWidth = DF_MAX_TAB_WIDTH;
 
         [self.cell setTitle:@""];
         [self.cell setBorderMask:LIBorderMaskBottom];
@@ -119,7 +113,7 @@
 
     NSClipView *contentView = self.scrollView.contentView;
 
-    BOOL isDocumentClipped = (contentView != nil) && (self.items.count * self.minTabWidth > NSWidth(contentView.bounds));
+    BOOL isDocumentClipped = (contentView.subviews.count > 0) && (NSMaxX([contentView.subviews[0] frame]) > NSWidth(contentView.bounds));
     
     if (isDocumentClipped) {
         [_scrollLeftButton  setHidden:NO];
@@ -610,51 +604,34 @@ static char LIScrollViewObservationContext;
 }
 
 - (LITabButton *)tabWithItem:(id)item {
-    LITabButton  *button = [self tabWithTitle:[self.dataSource tabControl:self titleForItem:item]];
-    [[button cell] setRepresentedObject:item];
-
-    if ([self.dataSource respondsToSelector:@selector(tabControl:canSelectItem:)]) {
-        [[button cell] setSelectable:[self.dataSource tabControl:self canSelectItem:item]];
-    }
-
-    if ([self.dataSource respondsToSelector:@selector(tabControl:willDisplayButton:forItem:)]) {
-        [self.dataSource tabControl:self willDisplayButton:button forItem:item];
-    }
-    
-    return button;
-}
-
-- (LITabButton *)tabWithTitle:(NSString *)title {
     LITabCell   *tabCell    = [self.cell copy];
     
-    tabCell.title           = title;
+    tabCell.representedObject = item;
+    
+    tabCell.imagePosition   = NSNoImage;
+    tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
+
+    tabCell.title           = [self.dataSource tabControl:self titleForItem:item];
     
     tabCell.target          = self;
     tabCell.action          = @selector(selectTab:);
     
     [tabCell sendActionOn:NSLeftMouseDownMask];
-
-    tabCell.imagePosition   = NSNoImage;
-    tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
     
     LITabButton *tab        = [self viewWithClass:[self.class tabButtonClass]];
-
-    [tab setCell:tabCell];
     
-    [tab addConstraints:
-     @[[NSLayoutConstraint constraintWithItem:tab attribute:NSLayoutAttributeWidth
-                                    relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                       toItem:nil attribute:NSLayoutAttributeNotAnAttribute
-                                   multiplier:1.0 constant:self.minTabWidth],
-       
-       [NSLayoutConstraint constraintWithItem:tab attribute:NSLayoutAttributeWidth
-                                    relatedBy:NSLayoutRelationLessThanOrEqual
-                                       toItem:nil attribute:NSLayoutAttributeNotAnAttribute
-                                   multiplier:1.0 constant:self.maxTabWidth]]];
+    [tab setCell:tabCell];
+
+    if ([self.dataSource respondsToSelector:@selector(tabControl:canSelectItem:)]) {
+        [[tab cell] setSelectable:[self.dataSource tabControl:self canSelectItem:item]];
+    }
+
+    if ([self.dataSource respondsToSelector:@selector(tabControl:willDisplayButton:forItem:)]) {
+        [self.dataSource tabControl:self willDisplayButton:tab forItem:item];
+    }
     
     return tab;
 }
-
 
 #pragma mark -
 #pragma mark Tab Buttons
@@ -720,13 +697,13 @@ static char LIScrollViewObservationContext;
         }
         
         LITabCell *cell = button.cell;
-        NSRect titleRect = [cell titleRectForBounds:button.bounds];
+        NSRect titleRect = [cell editingRectForBounds:button.bounds];
         
         self.editingField = [[NSTextField alloc] initWithFrame:titleRect];
 
         self.editingField.editable = YES;
         self.editingField.font = cell.font;
-        self.editingField.alignment = NSCenterTextAlignment;
+        self.editingField.alignment = cell.alignment;
         self.editingField.backgroundColor = cell.backgroundColor;
         self.editingField.focusRingType = NSFocusRingTypeNone;
 
