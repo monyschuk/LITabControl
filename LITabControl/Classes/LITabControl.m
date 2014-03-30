@@ -60,6 +60,10 @@
         _scrollLeftButton   = [self buttonWithImageNamed:@"LITabLeftTemplate" target:self action:@selector(goLeft:)];
         _scrollRightButton  = [self buttonWithImageNamed:@"LITabRightTemplate" target:self action:@selector(goRight:)];
         
+        [_addButton setMenu:nil];
+        [_scrollLeftButton setMenu:nil];
+        [_scrollRightButton setMenu:nil];
+        
         [_scrollLeftButton setContinuous:YES];
         [_scrollRightButton setContinuous:YES];
 
