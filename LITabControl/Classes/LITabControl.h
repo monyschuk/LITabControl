@@ -44,6 +44,7 @@ extern NSString *LITabControlSelectionDidChangeNotification;
 #pragma mark -
 #pragma mark Display Properties
 
+@property(nonatomic) CGFloat borderWidth;
 @property(nonatomic, copy) NSColor *borderColor;
 @property(nonatomic, copy) NSColor *backgroundColor;
 

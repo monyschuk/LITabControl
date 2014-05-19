@@ -20,6 +20,7 @@ typedef enum {
 @property(nonatomic) BOOL showsMenu;
 @property(readonly, nonatomic) BOOL isShowingMenu;
 
+@property(nonatomic) CGFloat borderWidth;
 @property(nonatomic) LIBorderMask borderMask;
 @property(nonatomic, copy) NSColor *borderColor;
 @property(nonatomic, copy) NSColor *backgroundColor;
@@ -55,4 +56,4 @@ typedef enum {
 
 @end
 
-extern BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount);
+extern BOOL LIRectArrayWithBorderMask(NSRect sourceRect, CGFloat borderWidth, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount);

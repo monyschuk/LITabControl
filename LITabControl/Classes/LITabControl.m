@@ -47,10 +47,11 @@
     if (_scrollView == nil) {
         [self setWantsLayer:YES];
 
-        [self.cell setTitle:@""];
-        [self.cell setBorderMask:LIBorderMaskBottom];
-        [self.cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:13]];
-        
+        LITabCell *cell     = self.cell;
+
+        cell.title          = @"";
+        cell.borderMask     = LIBorderMaskBottom;
+
         _scrollView         = [self viewWithClass:[NSScrollView class]];
         
         [_scrollView setDrawsBackground:NO];
@@ -189,6 +190,18 @@ static char LIScrollViewObservationContext;
 
 #pragma mark -
 #pragma mark Properties
+
+- (void)setBorderWidth:(CGFloat)borderWidth {
+    [self.cell setBorderWidth:borderWidth];
+    for (id subview in self.subviews) {
+        if ([subview respondsToSelector:@selector(cell)]) {
+            id cell = [subview cell];
+            if ([cell respondsToSelector:@selector(setBorderWidth:)]) {
+                [cell setBorderWidth:borderWidth];
+            }
+        }
+    }
+}
 
 - (void)setBorderColor:(NSColor *)borderColor {
     [self.cell setBorderColor:borderColor];

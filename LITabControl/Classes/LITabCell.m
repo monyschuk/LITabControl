@@ -13,10 +13,13 @@
 
 #define INCH                72.0f
 
-#define DF_BORDER_COLOR     [NSColor lightGrayColor]
-#define DF_TITLE_COLOR      [NSColor darkGrayColor]
-#define DF_HIGHLIGHT_COLOR  [NSColor colorWithCalibratedRed:0.119 green:0.399 blue:0.964 alpha:1.000]
-#define DF_BACKGROUND_COLOR [NSColor colorWithCalibratedRed:0.854 green:0.858 blue:0.873 alpha:1.000]
+#define DF_TITLE_COLOR      [NSColor colorWithCalibratedWhite:0.25f alpha:1.0f]
+#define DF_BORDER_COLOR     [NSColor colorWithCalibratedWhite:0.75f alpha:1.0f]
+#define DF_HIGHLIGHT_COLOR  [NSColor colorWithCalibratedRed:0.119f green:0.399f blue:0.964f alpha:1.0f]
+#define DF_BACKGROUND_COLOR [NSColor colorWithCalibratedRed:0.854f green:0.858f blue:0.873f alpha:1.0f]
+
+#define DF_FONT             [NSFont fontWithName:@"HelveticaNeue-Medium" size:13];
+
 
 @interface LITabButton (Private)
 - (void)constrainSizeWithCell:(LITabCell *)cell;
@@ -26,15 +29,18 @@
 
 - (id)initTextCell:(NSString *)aString {
     if ((self = [super initTextCell:aString])) {
-
-        _borderColor = DF_BORDER_COLOR;
-        _backgroundColor = DF_BACKGROUND_COLOR;
         
-        _titleColor = DF_TITLE_COLOR;
+        self.font           = DF_FONT;
+        
+        _borderWidth        = 1;
+        _borderColor        = DF_BORDER_COLOR;
+        _backgroundColor    = DF_BACKGROUND_COLOR;
+        
+        _titleColor          = DF_TITLE_COLOR;
         _titleHighlightColor = DF_HIGHLIGHT_COLOR;
         
-        _minWidth = INCH * 2.75;
-        _maxWidth = INCH * 2.75;
+        _minWidth           = INCH * 2.75;
+        _maxWidth           = INCH * 2.75;
         
         [self setBordered:YES];
         [self setBackgroundStyle:NSBackgroundStyleLight];
@@ -52,6 +58,7 @@
     copy->_maxWidth = _maxWidth;
     
     copy->_borderMask = _borderMask;
+    copy->_borderWidth = _borderWidth;
     copy->_borderColor = [_borderColor copyWithZone:zone];
     copy->_backgroundColor = [_backgroundColor copyWithZone:zone];
 
@@ -72,6 +79,13 @@
     }
 }
 
+- (void)setBorderWidth:(CGFloat)borderWidth {
+    if (_borderWidth != borderWidth) {
+        _borderWidth = borderWidth;
+        
+        [self.controlView setNeedsDisplay:YES];
+    }
+}
 - (void)setBorderColor:(NSColor *)borderColor {
     if (_borderColor != borderColor) {
         _borderColor = borderColor.copy;
@@ -230,7 +244,7 @@
     
     NSRect *borderRects;
     NSInteger borderRectCount;
-    if (LIRectArrayWithBorderMask(cellFrame, self.borderMask, &borderRects, &borderRectCount)) {
+    if (LIRectArrayWithBorderMask(cellFrame, self.borderWidth, self.borderMask, &borderRects, &borderRectCount)) {
         [self.borderColor set];
         NSRectFillList(borderRects, borderRectCount);
     }
@@ -361,22 +375,22 @@
 
 @end
 
-BOOL LIRectArrayWithBorderMask(NSRect sourceRect, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount) {
+BOOL LIRectArrayWithBorderMask(NSRect sourceRect, CGFloat borderWidth, LIBorderMask borderMask, NSRect **rectArray, NSInteger *rectCount) {
     NSInteger outputCount = 0;
     static NSRect outputArray[4];
     
     NSRect remainderRect;
     if (borderMask & LIBorderMaskTop) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMinYEdge);
+        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, borderWidth, NSMinYEdge);
     }
     if (borderMask & LIBorderMaskLeft) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMinXEdge);
+        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, borderWidth, NSMinXEdge);
     }
     if (borderMask & LIBorderMaskRight) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMaxXEdge);
+        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, borderWidth, NSMaxXEdge);
     }
     if (borderMask & LIBorderMaskBottom) {
-        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, 1, NSMaxYEdge);
+        NSDivideRect(sourceRect, &outputArray[outputCount++], &remainderRect, borderWidth, NSMaxYEdge);
     }
     
     if (rectCount) *rectCount = outputCount;
