@@ -46,12 +46,12 @@
 - (void)configureSubviews {
     if (_scrollView == nil) {
         [self setWantsLayer:YES];
-
+        
         LITabCell *cell     = self.cell;
-
+        
         cell.title          = @"";
         cell.borderMask     = LIBorderMaskBottom;
-
+        
         _scrollView         = [self viewWithClass:[NSScrollView class]];
         
         [_scrollView setDrawsBackground:NO];
@@ -67,7 +67,7 @@
         
         [_scrollLeftButton setContinuous:YES];
         [_scrollRightButton setContinuous:YES];
-
+        
         [_scrollLeftButton.cell sendActionOn:NSLeftMouseDownMask|NSPeriodicMask];
         [_scrollRightButton.cell sendActionOn:NSLeftMouseDownMask|NSPeriodicMask];
         
@@ -91,7 +91,7 @@
                                       relatedBy:NSLayoutRelationEqual
                                          toItem:nil attribute:NSLayoutAttributeNotAnAttribute
                                      multiplier:1 constant:24]];
-
+        
         [_scrollRightButton addConstraint:
          [NSLayoutConstraint constraintWithItem:_scrollRightButton attribute:NSLayoutAttributeWidth
                                       relatedBy:NSLayoutRelationEqual
@@ -100,7 +100,7 @@
         
         [_addButton.cell setBorderMask:[_addButton.cell borderMask] | LIBorderMaskRight];
         [_scrollLeftButton.cell setBorderMask:[_scrollLeftButton.cell borderMask] | LIBorderMaskLeft];
-
+        
         [self startObservingScrollView];
         [self updateButtons];
     }
@@ -115,9 +115,9 @@
     
     [_addButton setHidden:(showAddButton) ? NO : YES];
     [_addButton.constraints.lastObject setConstant:(showAddButton) ? 48 : 0];
-
+    
     NSClipView *contentView = self.scrollView.contentView;
-
+    
     BOOL isDocumentClipped = (contentView.subviews.count > 0) && (NSMaxX([contentView.subviews[0] frame]) > NSWidth(contentView.bounds));
     
     if (isDocumentClipped) {
@@ -135,12 +135,12 @@
 
 - (NSButton *)buttonWithImageNamed:(NSString *)name target:(id)target action:(SEL)action {
     NSButton *button = [self viewWithClass:[NSButton class]];
-
+    
     [button setCell:[[self cell] copy]];
-
+    
     [button setTarget:target];
     [button setAction:action];
-
+    
     [button setEnabled:action != NULL];
     
     [button setImagePosition:NSImageOnly];
@@ -152,7 +152,7 @@
 - (id)viewWithClass:(Class)clss {
     id view = [[clss alloc] initWithFrame:NSZeroRect];
     [view setTranslatesAutoresizingMaskIntoConstraints:NO];
-
+    
     return view;
 }
 
@@ -170,9 +170,9 @@ static char LIScrollViewObservationContext;
 - (void)stopObservingScrollView {
     [self.scrollView removeObserver:self forKeyPath:@"frame" context:&LIScrollViewObservationContext];
     [self.scrollView removeObserver:self forKeyPath:@"documentView.frame" context:&LIScrollViewObservationContext];
-
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:self.scrollView.contentView];
-
+    
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
@@ -290,7 +290,7 @@ static char LIScrollViewObservationContext;
 
 - (void)goRight:(id)sender {
     NSButton *tab = [self firstTabRightOutsideVisibleRect];
-
+    
     if (tab != nil) {
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
             [context setAllowsImplicitAnimation:YES];
@@ -303,7 +303,9 @@ static char LIScrollViewObservationContext;
     NSView *tabView = self.scrollView.documentView;
     NSRect  visibleRect = tabView.visibleRect;
     
-    for (NSButton *button in [tabView subviews]) {
+    for (NSUInteger index = [[tabView subviews] count]; index > 0; index--) {
+        NSButton *button = [[tabView subviews] objectAtIndex:index - 1];
+        
         if (NSMaxX(button.frame) > NSMaxX(visibleRect)) {
             return button;
         }
@@ -313,14 +315,14 @@ static char LIScrollViewObservationContext;
 
 - (void)selectTab:(id)sender {
     NSButton *selectedButton = sender;
-
+    
     for (NSButton *button in [self.scrollView.documentView subviews]) {
         [button setState:(button == selectedButton) ? 1 : 0];
     }
-
+    
     [[NSApplication sharedApplication] sendAction:self.action to:self.target from:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:LITabControlSelectionDidChangeNotification object:self];
-
+    
     NSEvent *currentEvent = [NSApp currentEvent];
     
     if (currentEvent.clickCount > 1) {
@@ -334,7 +336,7 @@ static char LIScrollViewObservationContext;
             return; // no autoscroll
         }
     }
-
+    
     // scroll to visible if either editing or selecting...
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
         [context setAllowsImplicitAnimation:YES];
@@ -388,8 +390,8 @@ static char LIScrollViewObservationContext;
     
     // the presence of a menu affects the vertical offset of our title
     if ([tab.cell menu] != nil) [draggingTab.cell setMenu:[[NSMenu alloc] init]];
-
-
+    
+    
     [tabView addSubview:draggingTab];
     [tabView addConstraints:draggingConstraints];
     
@@ -410,7 +412,7 @@ static char LIScrollViewObservationContext;
             LITabCell *cell = draggingTab.cell;
             cell.borderMask = cell.borderMask | LIBorderMaskLeft | LIBorderMaskRight;
         }
-
+        
         // move the dragged tab
         NSPoint nextPoint = [tabView convertPoint:event.locationInWindow fromView:nil];
         
@@ -422,7 +424,7 @@ static char LIScrollViewObservationContext;
         prevPoint = nextPoint;
         
         [draggingConstraints[0] setConstant:nextX];
-
+        
         // test for reordering...
         if (movingLeft && NSMidX(draggingTab.frame) < NSMinX(tab.frame) && tab != orderedTabs.firstObject) {
             // shift left
@@ -431,13 +433,13 @@ static char LIScrollViewObservationContext;
             
             [self layoutTabs:orderedTabs inView:tabView];
             [tabView addConstraints:draggingConstraints];
-
+            
             if (self.notifiesOnPartialReorder) {
                 [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
             }
             
             reordered = YES;
-
+            
         } else if (movingRight && NSMidX(draggingTab.frame) > NSMaxX(tab.frame) && tab != orderedTabs.lastObject) {
             // shift right
             NSUInteger index = [orderedTabs indexOfObject:tab];
@@ -445,7 +447,7 @@ static char LIScrollViewObservationContext;
             
             [self layoutTabs:orderedTabs inView:tabView];
             [tabView addConstraints:draggingConstraints];
-
+            
             if (self.notifiesOnPartialReorder) {
                 [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
             }
@@ -455,12 +457,12 @@ static char LIScrollViewObservationContext;
         
         [tabView layoutSubtreeIfNeeded];
     }
-
+    
     [draggingTab removeFromSuperview];
     draggingTab = nil;
     
     [tabView removeConstraints:draggingConstraints];
-
+    
     [tab setHidden:NO];
     [tab.cell setControlView:tab];
     
@@ -468,7 +470,7 @@ static char LIScrollViewObservationContext;
         if (!self.notifiesOnPartialReorder) {
             [self.dataSource tabControlDidReorderItems:self orderedItems:[orderedTabs valueForKeyPath:@"cell.representedObject"]];
         }
-
+        
         [self reloadData];
         
         [self setSelectedItem:[tab.cell representedObject]];
@@ -547,10 +549,10 @@ static char LIScrollViewObservationContext;
                                                                    owner:self
                                                                 userInfo:@{@"item" : item}]];
         }
-
+        
         [newTabs addObject:button];
     }
-
+    
     [tabView setSubviews:newTabs.reverseObjectEnumerator.allObjects];
     [self layoutTabs:newTabs inView:tabView];
     
@@ -568,13 +570,13 @@ static char LIScrollViewObservationContext;
                                                  options:0
                                                  metrics:nil
                                                    views:@{@"documentView": documentView}]];
-
+        
         [clipView addConstraints:
          [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[documentView]"
                                                  options:0
                                                  metrics:nil
                                                    views:@{@"documentView": documentView}]];
-
+        
         // here's the 'at least as wide' constraint...
         
         [clipView addConstraint:
@@ -610,8 +612,8 @@ static char LIScrollViewObservationContext;
     
     if (prev) {
         NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:prev attribute:NSLayoutAttributeTrailing
-                                                                             relatedBy:NSLayoutRelationLessThanOrEqual
-                                                                                toItem:tabView attribute:NSLayoutAttributeTrailing
+                                                                              relatedBy:NSLayoutRelationLessThanOrEqual
+                                                                                 toItem:tabView attribute:NSLayoutAttributeTrailing
                                                                              multiplier:1 constant:0];
         [trailingConstraint setPriority:NSLayoutPriorityWindowSizeStayPut];
         [tabView addConstraint:trailingConstraint];
@@ -627,7 +629,7 @@ static char LIScrollViewObservationContext;
     
     tabCell.imagePosition   = NSNoImage;
     tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
-
+    
     tabCell.title           = [self.dataSource tabControl:self titleForItem:item];
     
     tabCell.target          = self;
@@ -638,11 +640,11 @@ static char LIScrollViewObservationContext;
     LITabButton *tab        = [self viewWithClass:[self.class tabButtonClass]];
     
     [tab setCell:tabCell];
-
+    
     if ([self.dataSource respondsToSelector:@selector(tabControl:canSelectItem:)]) {
         [[tab cell] setSelectable:[self.dataSource tabControl:self canSelectItem:item]];
     }
-
+    
     if ([self.dataSource respondsToSelector:@selector(tabControl:willDisplayButton:forItem:)]) {
         [self.dataSource tabControl:self willDisplayButton:tab forItem:item];
     }
@@ -717,15 +719,15 @@ static char LIScrollViewObservationContext;
         NSRect titleRect = [cell editingRectForBounds:button.bounds];
         
         self.editingField = [[NSTextField alloc] initWithFrame:titleRect];
-
+        
         self.editingField.editable = YES;
         self.editingField.font = cell.font;
         self.editingField.alignment = cell.alignment;
         self.editingField.backgroundColor = cell.backgroundColor;
         self.editingField.focusRingType = NSFocusRingTypeNone;
-
+        
         self.editingField.textColor = [[NSColor darkGrayColor] blendedColorWithFraction:0.5 ofColor:[NSColor blackColor]];
-
+        
         NSTextFieldCell *textFieldCell = self.editingField.cell;
         
         [textFieldCell setBordered:NO];
@@ -808,11 +810,11 @@ static char LIScrollViewObservationContext;
 - (void)controlTextDidEndEditing:(NSNotification *)obj {
     NSString *title = self.editingField.stringValue;
     NSButton *button = (id)[self.editingField superview];
-
+    
     self.editingField.delegate = nil;
     [self.editingField removeFromSuperview];
     self.editingField = nil;
-
+    
     if (title.length > 0) {
         [button setTitle:title];
         
@@ -865,10 +867,10 @@ static char LIScrollViewObservationContext;
 
 - (void)restoreStateWithCoder:(NSCoder *)coder {
     [super restoreStateWithCoder:coder];
-
+    
     CGFloat scrollXOffset = [coder decodeDoubleForKey:kScrollXOffsetKey];
     NSUInteger selectedButtonIndex = [coder decodeIntegerForKey:kSelectedButtonIndexKey];
-
+    
     NSRect bounds = self.scrollView.contentView.bounds; bounds.origin.x = scrollXOffset;
     self.scrollView.contentView.bounds = bounds;
     
