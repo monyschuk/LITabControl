@@ -56,7 +56,7 @@
         
         [_scrollView setDrawsBackground:NO];
         [_scrollView setBackgroundColor:[NSColor redColor]];
-        
+        [_scrollView setVerticalScrollElasticity:NSScrollElasticityNone];
         _addButton          = [self buttonWithImageNamed:@"LITabPlusTemplate" target:self action:@selector(add:)];
         _scrollLeftButton   = [self buttonWithImageNamed:@"LITabLeftTemplate" target:self action:@selector(goLeft:)];
         _scrollRightButton  = [self buttonWithImageNamed:@"LITabRightTemplate" target:self action:@selector(goRight:)];
