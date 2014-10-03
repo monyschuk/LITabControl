@@ -228,14 +228,13 @@
 
 #pragma mark -
 #pragma mark Drawing
+-(void)drawImage:(NSImage *)image withFrame:(NSRect)frame inView:(NSView *)controlView{
+    [super drawImage:[image imageWithTint:self.isHighlighted ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]] withFrame:frame inView:controlView];
 
+}
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     [super drawWithFrame:cellFrame inView:controlView];
-    
-    if (self.image && self.imagePosition != NSNoImage) {
-        [self drawImage:[self.image imageWithTint:self.isHighlighted ? DF_HIGHLIGHT_COLOR : [NSColor darkGrayColor]] withFrame:cellFrame inView:controlView];
-    }
-    
+
     if (self.showsMenu) {
         [[LITabCell popupImage] drawInRect:[self popupRectWithFrame:cellFrame] fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
     }
