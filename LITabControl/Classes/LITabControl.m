@@ -56,7 +56,7 @@
         
         [_scrollView setDrawsBackground:NO];
         [_scrollView setBackgroundColor:[NSColor redColor]];
-        
+        [_scrollView setVerticalScrollElasticity:NSScrollElasticityNone];
         _addButton          = [self buttonWithImageNamed:@"LITabPlusTemplate" target:self action:@selector(add:)];
         _scrollLeftButton   = [self buttonWithImageNamed:@"LITabLeftTemplate" target:self action:@selector(goLeft:)];
         _scrollRightButton  = [self buttonWithImageNamed:@"LITabRightTemplate" target:self action:@selector(goRight:)];
@@ -74,7 +74,7 @@
         NSDictionary *views = NSDictionaryOfVariableBindings(_scrollView, _addButton, _scrollLeftButton, _scrollRightButton);
         
         [self setSubviews:@[_scrollView, _addButton, _scrollLeftButton, _scrollRightButton]];
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_addButton][_scrollView]-(-1)-[_scrollLeftButton][_scrollRightButton]|" options:0 metrics:nil views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_addButton]-(-1)-[_scrollView]-(-1)-[_scrollLeftButton][_scrollRightButton]|" options:0 metrics:nil views:views]];
         
         for (NSView *view in views.allValues) {
             [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|" options:0 metrics:nil views:@{@"view": view}]];
@@ -98,7 +98,7 @@
                                          toItem:nil attribute:NSLayoutAttributeNotAnAttribute
                                      multiplier:1 constant:24]];
         
-        [_addButton.cell setBorderMask:[_addButton.cell borderMask] | LIBorderMaskRight];
+        [_addButton.cell setBorderMask:[_addButton.cell borderMask] | LIBorderMaskRight|LIBorderMaskBottom|LIBorderMaskTop];
         [_scrollLeftButton.cell setBorderMask:[_scrollLeftButton.cell borderMask] | LIBorderMaskLeft];
         
         [self startObservingScrollView];
@@ -111,10 +111,11 @@
 }
 
 - (void)updateButtons {
-    BOOL showAddButton = self.addAction != NULL;
-    
-    [_addButton setHidden:(showAddButton) ? NO : YES];
-    [_addButton.constraints.lastObject setConstant:(showAddButton) ? 48 : 0];
+//    BOOL showAddButton = self.addAction != NULL;
+//    
+//    [_addButton setHidden:(showAddButton) ? NO : YES];
+
+//    [_addButton.constraints.lastObject setConstant:(showAddButton) ? 48 : 0];
     
     NSClipView *contentView = self.scrollView.contentView;
     
@@ -137,14 +138,18 @@
     NSButton *button = [self viewWithClass:[NSButton class]];
     
     [button setCell:[[self cell] copy]];
-    
+
     [button setTarget:target];
     [button setAction:action];
     
     [button setEnabled:action != NULL];
     
     [button setImagePosition:NSImageOnly];
-    [button setImage:[NSImage imageNamed:name]];
+    NSImage* image =[NSImage imageNamed:name];
+    [image setTemplate:YES];
+    [button setImage:image];
+    [button setBezelStyle:NSShadowlessSquareBezelStyle];
+    [button setBordered: YES];
     
     return button;
 }
@@ -558,11 +563,14 @@ static char LIScrollViewObservationContext;
     
     self.items = newItems;
     self.scrollView.documentView = (self.items.count) ? tabView : nil;
+    [self.scrollView.layer setBorderWidth:1];
+    [self.scrollView.layer setBorderColor:[NSColor colorWithCalibratedWhite:0.75f alpha:1.0f].CGColor];
     
     if (self.scrollView.documentView) {
         NSClipView *clipView = self.scrollView.contentView;
         NSView *documentView = self.scrollView.documentView;
-        
+        [documentView.layer setBorderWidth:1];
+        [documentView.layer setBorderColor:[NSColor colorWithCalibratedWhite:0.75f alpha:1.0f].CGColor];
         // document content is as tall as our scrolling area, and at least as wide...
         
         [clipView addConstraints:
@@ -606,7 +614,7 @@ static char LIScrollViewObservationContext;
                                       relatedBy:NSLayoutRelationEqual
                                          toItem:(prev != nil ? prev : tabView)
                                       attribute:(prev != nil ? NSLayoutAttributeTrailing : NSLayoutAttributeLeading)
-                                     multiplier:1 constant:0]];
+                                     multiplier:1 constant:prev!=nil ? -1 : -.5]];
         prev = button;
     }
     
@@ -628,7 +636,7 @@ static char LIScrollViewObservationContext;
     tabCell.representedObject = item;
     
     tabCell.imagePosition   = NSNoImage;
-    tabCell.borderMask      = LIBorderMaskRight|LIBorderMaskBottom;
+    tabCell.borderMask      = LIBorderMaskLeft | LIBorderMaskRight|LIBorderMaskBottom;
     
     tabCell.title           = [self.dataSource tabControl:self titleForItem:item];
     
